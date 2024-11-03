@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stfsy/go-api-kit/app/server/handlers"
+	"github.com/stfsy/go-api-kit/server/handlers"
 	a "github.com/stretchr/testify/assert"
 	"github.com/urfave/negroni"
 )

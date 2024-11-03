@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/stfsy/go-api-kit/app/config"
-	"github.com/stfsy/go-api-kit/app/server/handlers"
-	"github.com/stfsy/go-api-kit/app/server/middlewares"
-	"github.com/stfsy/go-api-kit/app/utils"
+	"github.com/stfsy/go-api-kit/config"
+	"github.com/stfsy/go-api-kit/server/handlers"
+	"github.com/stfsy/go-api-kit/server/middlewares"
+	"github.com/stfsy/go-api-kit/utils"
 	"github.com/urfave/negroni"
 )
 

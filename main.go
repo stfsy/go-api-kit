@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/stfsy/go-api-kit/app/server"
-	"github.com/stfsy/go-api-kit/app/utils"
+	"github.com/stfsy/go-api-kit/server"
+	"github.com/stfsy/go-api-kit/utils"
 )
 
 var logger = utils.NewLogger("main")

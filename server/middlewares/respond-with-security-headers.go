@@ -3,7 +3,7 @@ package middlewares
 import (
 	"net/http"
 
-	"github.com/stfsy/go-api-kit/app/server/middlewares/security"
+	"github.com/stfsy/go-api-kit/server/middlewares/security"
 )
 
 type SecurityHeadersMiddleware struct{}

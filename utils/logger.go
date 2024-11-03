@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/stfsy/go-api-kit/app/config"
+	"github.com/stfsy/go-api-kit/config"
 )
 
 func NewLogger(component string) *slog.Logger {

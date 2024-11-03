@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/stfsy/go-api-kit/app/server/handlers"
+	"github.com/stfsy/go-api-kit/server/handlers"
 )
 
 type RequireContentTypeMiddleware struct {
