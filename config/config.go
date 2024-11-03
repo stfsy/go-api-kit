@@ -20,10 +20,16 @@ type Configuration struct {
 var c *Configuration
 
 func Load() {
-	var s Configuration
-	envconfig.MustProcess("API_KIT", &s)
+	var a AppConfig
+	envconfig.MustProcess("API_KIT", &a)
 
-	c = &s
+	var s ServerConfig
+	envconfig.MustProcess("", &s)
+
+	c = &Configuration{
+		AppConfig:    a,
+		ServerConfig: s,
+	}
 }
 
 func Get() Configuration {
@@ -32,6 +38,10 @@ func Get() Configuration {
 	}
 
 	return *c
+}
+
+func reset() {
+	c = nil
 }
 
 func IsProduction() bool {
