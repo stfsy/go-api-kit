@@ -1,8 +1,6 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -23,10 +21,7 @@ var c *Configuration
 
 func Load() {
 	var s Configuration
-	err := envconfig.Process("API_KIT", &s)
-	if err != nil {
-		panic(fmt.Sprintf("unable to read environment configuration %s", err.Error()))
-	}
+	envconfig.MustProcess("API_KIT", &s)
 
 	c = &s
 }
