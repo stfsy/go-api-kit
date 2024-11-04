@@ -17,12 +17,28 @@ import (
 
 var logger = utils.NewLogger("server")
 
-var server *http.Server
+type ServerConfig struct {
+	MuxCallback    func(*http.ServeMux)
+	ListenCallback func()
+	PortOverride   string
+}
 
-func Start(muxCallback func(*http.ServeMux), listenCallback func()) error {
+type Server struct {
+	serverConfig *ServerConfig
+	server       *http.Server
+}
+
+func NewServer(serverConfig *ServerConfig) *Server {
+	return &Server{
+		serverConfig: serverConfig,
+		server:       nil,
+	}
+}
+
+func (s *Server) Start() error {
 	mux := http.NewServeMux()
-	if muxCallback != nil {
-		muxCallback(mux)
+	if s.serverConfig.MuxCallback != nil {
+		s.serverConfig.MuxCallback(mux)
 	}
 
 	mux.HandleFunc("/", handlers.NotFoundHandler)
@@ -32,20 +48,23 @@ func Start(muxCallback func(*http.ServeMux), listenCallback func()) error {
 
 	configuration := config.Get()
 	port := configuration.Port
+	if s.serverConfig.PortOverride != "" {
+		port = s.serverConfig.PortOverride
+	}
 
-	server = createServer(port, n)
+	s.server = createServer(port, n)
 
-	ln, err := net.Listen("tcp", server.Addr)
+	ln, err := net.Listen("tcp", s.server.Addr)
 	if err != nil {
 		return fmt.Errorf("unable to bind to ip %w", err)
 	}
 
-	if listenCallback != nil {
-		listenCallback()
+	if s.serverConfig.ListenCallback != nil {
+		s.serverConfig.ListenCallback()
 	}
 
 	logger.Info(fmt.Sprintf("Listening on port %s", port))
-	err = server.Serve(ln)
+	err = s.server.Serve(ln)
 
 	if err != nil && err.Error() != "http: Server closed" {
 		return fmt.Errorf("unable to accept incoming connections %w", err)
@@ -71,12 +90,12 @@ func createMiddlewareHandler() *negroni.Negroni {
 	return n
 }
 
-func Stop() {
+func (s *Server) Stop() {
 	// Set a timeout for shutdown
 	ctx, cancel := context.WithTimeout(context.Background(), 9*time.Second)
 	defer cancel()
 
-	if err := server.Shutdown(ctx); err != nil {
+	if err := s.server.Shutdown(ctx); err != nil {
 		log.Fatalf("Server shutdown error: %v", err)
 	}
 

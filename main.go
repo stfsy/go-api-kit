@@ -1,8 +1,8 @@
-// Package main is the entry point for the k6 CLI application. It assembles all the crucial components for the running.
 package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,6 +12,7 @@ import (
 )
 
 var logger = utils.NewLogger("main")
+var s *server.Server
 
 func main() {
 	startServerNonBlocking()
@@ -23,14 +24,26 @@ func stopServerAfterSignal() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	<-sigChan
 
-	server.Stop()
+	s.Stop()
 
 	logger.Info("Graceful shutdown complete.")
 }
 
 func startServerNonBlocking() {
+	s = server.NewServer(&server.ServerConfig{
+		MuxCallback: func(*http.ServeMux) {
+			// add your endpoints and middlewares here
+		},
+		ListenCallback: func() {
+			// do sth just after listen was called on the server instance and
+			// just before the server starts serving requests
+		},
+		// port override is optional but can be used if you want to
+		// define the port manually. If empty the value of env.PORT is used.
+		PortOverride: "8080",
+	})
 	go func() {
-		err := server.Start(nil, nil)
+		err := s.Start()
 		if err != nil {
 			panic(fmt.Errorf("unable to start server %w", err))
 		}
