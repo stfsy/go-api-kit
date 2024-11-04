@@ -94,6 +94,14 @@ func startServerNonBlocking() {
 }
 ```
 
+### Configuration
+This module will read the following environment variables.
+
+#### Env Vars
+- `API_KIT_ENV`: default=production
+#### Standard Env Vars
+- `PORT`: default=8080
+
 ### Middlewares
 By default, four cross-cutting middlewares are configured. These build the foundation for a secure API.
 
