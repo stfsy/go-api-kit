@@ -106,7 +106,7 @@ func TestPreconditionFailed(t *testing.T) {
 }
 
 func TestPayloadTooLarge(t *testing.T) {
-	GenericTest(t, SendPayloadTooLarge, 413, "Payload Too Large")
+	GenericTest(t, SendPayloadTooLarge, http.StatusRequestEntityTooLarge, "Payload Too Large")
 }
 
 func TestURITooLong(t *testing.T) {
@@ -118,7 +118,7 @@ func TestUnsupportedMediaType(t *testing.T) {
 }
 
 func TestRangeNotSatisfiable(t *testing.T) {
-	GenericTest(t, SendRangeNotSatisfiable, 416, "Range Not Satisfiable")
+	GenericTest(t, SendRangeNotSatisfiable, http.StatusRequestedRangeNotSatisfiable, "Range Not Satisfiable")
 }
 
 func TestExpectationFailed(t *testing.T) {
