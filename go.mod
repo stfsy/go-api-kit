@@ -3,7 +3,7 @@ module github.com/stfsy/go-api-kit
 go 1.23.1
 
 require (
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/urfave/negroni v1.0.0
 )
 
