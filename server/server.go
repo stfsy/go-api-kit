@@ -75,6 +75,10 @@ func (s *Server) Start() error {
 }
 
 func createServer(port string, n *negroni.Negroni) *http.Server {
+	if port == "" {
+		port = "8080"
+	}
+
 	var addr string
 	if runtime.GOOS == "windows" {
 		addr = fmt.Sprintf("localhost:%s", port)
