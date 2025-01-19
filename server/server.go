@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"runtime"
 	"time"
 
 	"github.com/stfsy/go-api-kit/config"
@@ -74,8 +75,15 @@ func (s *Server) Start() error {
 }
 
 func createServer(port string, n *negroni.Negroni) *http.Server {
+	var addr string
+	if runtime.GOOS == "windows" {
+		addr = fmt.Sprintf("localhost:%s", port)
+	} else {
+		addr = fmt.Sprintf(":%s", port)
+	}
+
 	return &http.Server{
-		Addr:    fmt.Sprintf(":%s", port),
+		Addr:    addr,
 		Handler: n,
 	}
 }
