@@ -109,7 +109,7 @@ func (s *Server) Stop() {
 
 	if err := s.server.Shutdown(ctx); err != nil {
 		log.Fatalf("Server shutdown error: %v", err)
+	} else {
+		logger.Info("Server stopped")
 	}
-
-	logger.Info("Server stopped")
 }
