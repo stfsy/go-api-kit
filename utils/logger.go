@@ -15,5 +15,5 @@ func NewLogger(component string) *slog.Logger {
 	} else {
 		handler = slog.NewTextHandler(os.Stdout, options)
 	}
-	return slog.New(handler)
+	return slog.New(handler).With(slog.String("component", component))
 }
