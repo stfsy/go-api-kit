@@ -46,12 +46,14 @@ func hasContentLength(r *http.Request) bool {
 }
 
 func isWriteRequest(r *http.Request) bool {
-	if r.Method == http.MethodGet {
+	switch r.Method {
+	case http.MethodGet:
 		return false
-	} else if r.Method == http.MethodPatch || r.Method == http.MethodPost || r.Method == http.MethodPut {
+	case http.MethodPatch, http.MethodPost, http.MethodPut:
 		return true
-	} else if r.Method == http.MethodDelete {
+	case http.MethodDelete:
 		return r.Body != nil
+	default:
+		return false
 	}
-	return false
 }
