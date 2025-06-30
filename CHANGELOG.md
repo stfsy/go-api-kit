@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/stfsy/go-api-kit/compare/v1.0.0...v1.1.0) (2025-06-30)
+
+
+### Features
+
+* add simple liveness handler ([e257183](https://github.com/stfsy/go-api-kit/commit/e25718342242c5988caa351b5a20e764e73789b1))
+
 ## 1.0.0 (2025-03-29)
 
 
