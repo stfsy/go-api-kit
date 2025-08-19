@@ -5,17 +5,24 @@ import (
 )
 
 type AppConfig struct {
-	Env         string `default:"production"`
-	MaxBodySize int    `default:"8192"`
+	Env string `default:"production"`
 }
 
 type ServerConfig struct {
+	MaxBodySize  int `default:"8192"`
+	ReadTimeout  int `default:"10"`  // seconds
+	WriteTimeout int `default:"10"`  // seconds
+	IdleTimeout  int `default:"620"` // seconds
+}
+
+type ContainerConfig struct {
 	Port string `default:"8080"`
 }
 
 type Configuration struct {
 	AppConfig
 	ServerConfig
+	ContainerConfig
 }
 
 var c *Configuration
@@ -24,12 +31,12 @@ func Load() {
 	var a AppConfig
 	envconfig.MustProcess("API_KIT", &a)
 
-	var s ServerConfig
+	var s ContainerConfig
 	envconfig.MustProcess("", &s)
 
 	c = &Configuration{
-		AppConfig:    a,
-		ServerConfig: s,
+		AppConfig:       a,
+		ContainerConfig: s,
 	}
 }
 

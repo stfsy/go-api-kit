@@ -34,6 +34,7 @@ func TestRequireMaxBodyLengthMiddleware(t *testing.T) {
 	t.Run("should accept request under limit", func(t *testing.T) {
 		body := bytes.Repeat([]byte("a"), maxSize-1)
 		req := httptest.NewRequest("POST", "/", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
 		rec := httptest.NewRecorder()
 
 		n.ServeHTTP(rec, req)
@@ -43,6 +44,7 @@ func TestRequireMaxBodyLengthMiddleware(t *testing.T) {
 	t.Run("should reject request over limit", func(t *testing.T) {
 		body := bytes.Repeat([]byte("a"), maxSize+1)
 		req := httptest.NewRequest("POST", "/", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
 		rec := httptest.NewRecorder()
 
 		n.ServeHTTP(rec, req)

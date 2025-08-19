@@ -75,6 +75,8 @@ func (s *Server) Start() error {
 }
 
 func createServer(port string, n *negroni.Negroni) *http.Server {
+	c := config.Get()
+
 	if port == "" {
 		port = "8080"
 	}
@@ -87,8 +89,11 @@ func createServer(port string, n *negroni.Negroni) *http.Server {
 	}
 
 	return &http.Server{
-		Addr:    addr,
-		Handler: n,
+		Addr:         addr,
+		Handler:      n,
+		ReadTimeout:  time.Duration(c.ReadTimeout) * time.Second,
+		WriteTimeout: time.Duration(c.WriteTimeout) * time.Second,
+		IdleTimeout:  time.Duration(c.IdleTimeout) * time.Second,
 	}
 }
 
