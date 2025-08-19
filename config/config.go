@@ -5,7 +5,8 @@ import (
 )
 
 type AppConfig struct {
-	Env string `default:"production"`
+	Env         string `default:"production"`
+	MaxBodySize int    `default:"8192"`
 }
 
 type ServerConfig struct {

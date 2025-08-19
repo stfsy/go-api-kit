@@ -95,6 +95,7 @@ func createServer(port string, n *negroni.Negroni) *http.Server {
 func createMiddlewareHandler() *negroni.Negroni {
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
+	n.Use(middlewares.NewRequireMaxBodyLengthMiddleware())
 	n.Use(middlewares.NewAccessLog())
 	n.Use(middlewares.NewRequireContentTypeMiddleware("application/json"))
 	n.Use(middlewares.NewRespondWithSecurityHeadersMiddleware())
