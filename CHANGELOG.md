@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.0](https://github.com/stfsy/go-api-kit/compare/v1.0.0...v1.1.0) (2025-08-21)
+
+
+### Features
+
+* add max body length middleware ([186c36a](https://github.com/stfsy/go-api-kit/commit/186c36a056670c22a87061b05dc4e49d4f427bd3))
+* add simple liveness handler ([e257183](https://github.com/stfsy/go-api-kit/commit/e25718342242c5988caa351b5a20e764e73789b1))
+* **server:** add connection timeouts ([cb3398c](https://github.com/stfsy/go-api-kit/commit/cb3398cd63170aa89164b65999f30efb97f51cef))
+
 ## 1.0.0 (2025-03-29)
 
 
