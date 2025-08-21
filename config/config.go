@@ -9,10 +9,10 @@ type AppConfig struct {
 }
 
 type ServerConfig struct {
-	MaxBodySize  int `default:"8192"`
-	ReadTimeout  int `default:"10"`  // seconds
-	WriteTimeout int `default:"10"`  // seconds
-	IdleTimeout  int `default:"620"` // seconds
+	MaxBodySize  int `default:"10485760" split_words:"true"`
+	ReadTimeout  int `default:"10" split_words:"true"`  // seconds
+	WriteTimeout int `default:"10" split_words:"true"`  // seconds
+	IdleTimeout  int `default:"620" split_words:"true"` // seconds
 }
 
 type ContainerConfig struct {
