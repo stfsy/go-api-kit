@@ -1,4 +1,3 @@
-
 <div align="center">
 
 [![contributions - welcome](https://img.shields.io/badge/contributions-welcome-blue/green)](/CONTRIBUTING.md "Go to contributions doc")
@@ -12,27 +11,10 @@
 <br/>
 
 # go-api-kit
-
 Kickstarts your API by providing out-of-the-box implementations for must-have modules and components for a successful API.
 
-# ⭐ Use Case
-Never has it been easier and cheaper to build and provide services, web applications to customers. Current cloud providers like Microsoft, Google, Amazon,
-provide a high abstraction level and consumption-based pricing, which allow even individuals to compete with well-established service providers.
+Provides a solid foundation for SaaS, Client/Server and API products. It provides out-of-the-box mitigations for the [10 OWASP risks for APIs](https://owasp.org/API-Security/editions/2023/en/0x11-t10/):
 
-Although, the barrier for entering the market has been lowered, the demand for security has steadily increased. It is clear why: The internet has not only connected businesses and customers, or families and friends, but also hackers, and criminals. Thus, the need for security applications, infrastructure and service is as high as it has ever been.
-
-This API starter kit provides a solid foundation for SaaS, Client/Server and API products. It provides out-of-the-box mitigations for the [10 OWASP risks for APIs](https://owasp.org/API-Security/editions/2023/en/0x11-t10/):
-
-- [API1:2023](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/) - **Broken Object Level Authorization**	APIs tend to expose endpoints that handle object identifiers, creating a wide attack surface of Object Level Access Control issues. Object level authorization checks should be considered in every function that accesses a data source using an ID from the user.
-- [API2:2023](https://owasp.org/API-Security/editions/2023/en/0xa2-broken-authentication/) - **Broken Authentication**	Authentication mechanisms are often implemented incorrectly, allowing attackers to compromise authentication tokens or to exploit implementation flaws to assume other user's identities temporarily or permanently. Compromising a system's ability to identify the client/user, compromises API security overall.
-- [API3:2023](https://owasp.org/API-Security/editions/2023/en/0xa3-broken-object-property-level-authorization/) - **Broken Object Property Level Authorization**	This category combines API3:2019 Excessive Data Exposure and API6:2019 - Mass Assignment, focusing on the root cause: the lack of or improper authorization validation at the object property level. This leads to information exposure or manipulation by unauthorized parties.
-- [API4:2023](https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/) - **Unrestricted Resource Consumption**	Satisfying API requests requires resources such as network bandwidth, CPU, memory, and storage. Other resources such as emails/SMS/phone calls or biometrics validation are made available by service providers via API integrations, and paid for per request. Successful attacks can lead to Denial of Service or an increase of operational costs.
-- [API5:2023](https://owasp.org/API-Security/editions/2023/en/0xa5-broken-function-level-authorization/) - **Broken Function Level Authorization**	Complex access control policies with different hierarchies, groups, and roles, and an unclear separation between administrative and regular functions, tend to lead to authorization flaws. By exploiting these issues, attackers can gain access to other users’ resources and/or administrative functions.
-- [API6:2023](https://owasp.org/API-Security/editions/2023/en/0xa6-unrestricted-access-to-sensitive-business-flows/) - **Unrestricted Access to Sensitive Business Flows**	APIs vulnerable to this risk expose a business flow - such as buying a ticket, or posting a comment - without compensating for how the functionality could harm the business if used excessively in an automated manner. This doesn't necessarily come from implementation bugs.
-- [API7:2023](https://owasp.org/API-Security/editions/2023/en/0xa7-server-side-request-forgery/) - **Server Side Request Forgery**	Server-Side Request Forgery (SSRF) flaws can occur when an API is fetching a remote resource without validating the user-supplied URI. This enables an attacker to coerce the application to send a crafted request to an unexpected destination, even when protected by a firewall or a VPN.
-- [API8:2023](https://owasp.org/API-Security/editions/2023/en/0xa8-security-misconfiguration/) - **Security Misconfiguration**	APIs and the systems supporting them typically contain complex configurations, meant to make the APIs more customizable. Software and DevOps engineers can miss these configurations, or don't follow security best practices when it comes to configuration, opening the door for different types of attacks.
-- [API9:2023](https://owasp.org/API-Security/editions/2023/en/0xa9-improper-inventory-management/) - **Improper Inventory Management**	APIs tend to expose more endpoints than traditional web applications, making proper and updated documentation highly important. A proper inventory of hosts and deployed API versions also are important to mitigate issues such as deprecated API versions and exposed debug endpoints.
-- [API10:2023](https://owasp.org/API-Security/editions/2023/en/0xaa-unsafe-consumption-of-apis/) - **Unsafe Consumption** of APIs	Developers tend to trust data received from third-party APIs more than user input, and so tend to adopt weaker security standards. In order to compromise APIs, attackers go after integrated third-party services instead of trying to compromise the target API directly.
 
 ## 📦 Installation
 
@@ -94,25 +76,222 @@ func startServerNonBlocking() {
 }
 ```
 
-### Configuration
+## Configuration
 This module will read the following environment variables.
 
-#### Env Vars
+### Env Vars
 - `API_KIT_ENV`: default=production
 - `API_KIT_MAX_BODY_SIZE`: default=10485760 (bytes) = 10 MB
 - `API_KIT_READ_TIMEOUT`: default=10 (seconds)
 - `API_KIT_WRITE_TIMEOUT`: default=10 (seconds)
 - `API_KIT_IDLE_TIMEOUT`: default=620 (seconds)
-#### Standard Env Vars
+### Standard Env Vars
 - `PORT`: default=8080
 
-### Middlewares
-By default, four cross-cutting middlewares are configured. These build the foundation for a secure API.
+## Middlewares
+The module provides several ready-to use middlewares which are compatible with e.g. https://github.com/urfave/negroni.
 
-- ✅ accessLog: Logs each incoming request to give insights about usage and response times
-- ✅ contentType: Validates the incoming content type, if the request method implies a state change e.g. POST
-- ✅ securityHeaders: Adds additional security headers to the response to prevent common attacks and protect users and their data
-- ✅ upstreamCacheControl: Instructs proxy servers between the client and the API to not cache responses
+### Access Log Middleware
+Logs each incoming request to give insights about usage and response times.
+
+```go
+import (
+	"net/http"
+	"github.com/urfave/negroni"
+	"github.com/stfsy/go-api-kit/server/middlewares"
+)
+
+func main() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	})
+	n := negroni.New()
+	n.Use(middlewares.NewAccessLog())
+	n.UseHandler(mux)
+	http.ListenAndServe(":8080", n)
+}
+```
+
+### Content Type Middleware
+Validates the incoming content type, if the request method implies a state change (e.g. POST).
+
+```go
+import (
+	"net/http"
+	"github.com/urfave/negroni"
+	"github.com/stfsy/go-api-kit/server/middlewares"
+)
+
+func main() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	})
+	n := negroni.New()
+	n.Use(middlewares.NewRequireContentTypeMiddleware("application/json"))
+	n.UseHandler(mux)
+	http.ListenAndServe(":8080", n)
+}
+```
+
+### Max Body Length Middleware
+Limits the maximum allowed size of the request body.
+
+```go
+import (
+	"net/http"
+	"github.com/urfave/negroni"
+	"github.com/stfsy/go-api-kit/server/middlewares"
+)
+
+func main() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	})
+	n := negroni.New()
+	n.Use(middlewares.NewRequireMaxBodyLengthMiddleware())
+	n.UseHandler(mux)
+	http.ListenAndServe(":8080", n)
+}
+```
+
+### Security Headers Middleware
+Adds additional security headers to the response to prevent common attacks and protect users and their data.
+
+```go
+import (
+	"net/http"
+	"github.com/urfave/negroni"
+	"github.com/stfsy/go-api-kit/server/middlewares"
+)
+
+func main() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	})
+	n := negroni.New()
+	n.Use(middlewares.NewRespondWithSecurityHeadersMiddleware())
+	n.UseHandler(mux)
+	http.ListenAndServe(":8080", n)
+}
+```
+
+### Upstream Cache Control Middleware
+Instructs proxy servers between the client and the API to not cache responses.
+
+```go
+import (
+	"net/http"
+	"github.com/urfave/negroni"
+	"github.com/stfsy/go-api-kit/server/middlewares"
+)
+
+func main() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	})
+	n := negroni.New()
+	n.Use(middlewares.NewNoCacheHeadersMiddleware())
+	n.UseHandler(mux)
+	http.ListenAndServe(":8080", n)
+}
+```
+
+
+## Functions
+
+### Response Sender Functions
+
+These functions help you send plain text or JSON responses easily:
+
+#### SendText
+Sends a plain text response.
+```go
+import "github.com/stfsy/go-api-kit/server/handlers"
+
+handlers.SendText(w, "Hello, world!")
+```
+
+#### SendJson
+Sends a JSON response (sets Content-Type to application/json).
+```go
+import "github.com/stfsy/go-api-kit/server/handlers"
+
+handlers.SendJson(w, []byte(`{"message":"ok"}`))
+```
+
+---
+
+### Response Error Sender Functions
+
+These functions send standardized error responses with the correct HTTP status code and a JSON body. Each function takes an `http.ResponseWriter` and an optional `details` map for additional error info.
+
+#### Example usage:
+```go
+import "github.com/stfsy/go-api-kit/server/handlers"
+
+handlers.SendBadRequest(w, map[string]string{"zip_code": "must match the required pattern"})
+handlers.SendUnauthorized(w, map[string]string{"x-api-key": "must not be null"})
+handlers.SendInternalServerError(w, nil)
+```
+
+#### Available error response functions:
+- SendBadRequest
+- SendUnauthorized
+- SendForbidden
+- SendNotFound
+- SendMethodNotAllowed
+- SendNotAcceptable
+- SendRequestTimeout
+- SendConflict
+- SendGone
+- SendLengthRequired
+- SendPreconditionFailed
+- SendPayloadTooLarge
+- SendURITooLong
+- SendUnsupportedMediaType
+- SendRangeNotSatisfiable
+- SendExpectationFailed
+- SendUnprocessableEntity
+- SendTooManyRequests
+- SendInternalServerError
+- SendNotImplemented
+- SendBadGateway
+- SendServiceUnavailable
+- SendGatewayTimeout
+- SendHTTPVersionNotSupported
+
+| Status Code | Title                        | Function                   |
+|-------------|------------------------------|----------------------------|
+| 400         | Bad Request                  | SendBadRequest             |
+| 401         | Unauthorized                 | SendUnauthorized           |
+| 403         | Forbidden                    | SendForbidden              |
+| 404         | Not Found                    | SendNotFound               |
+| 405         | Method Not Allowed           | SendMethodNotAllowed       |
+| 406         | Not Acceptable               | SendNotAcceptable          |
+| 408         | Request Timeout              | SendRequestTimeout         |
+| 409         | Conflict                     | SendConflict               |
+| 410         | Gone                         | SendGone                   |
+| 411         | Length Required              | SendLengthRequired         |
+| 412         | Precondition Failed          | SendPreconditionFailed     |
+| 413         | Payload Too Large            | SendPayloadTooLarge        |
+| 414         | URI Too Long                 | SendURITooLong             |
+| 415         | Unsupported Media Type       | SendUnsupportedMediaType   |
+| 416         | Range Not Satisfiable        | SendRangeNotSatisfiable    |
+| 417         | Expectation Failed           | SendExpectationFailed      |
+| 422         | Unprocessable Entity         | SendUnprocessableEntity    |
+| 429         | Too Many Requests            | SendTooManyRequests        |
+| 500         | Internal Server Error        | SendInternalServerError    |
+| 501         | Not Implemented              | SendNotImplemented         |
+| 502         | Bad Gateway                  | SendBadGateway             |
+| 503         | Service Unavailable          | SendServiceUnavailable     |
+| 504         | Gateway Timeout              | SendGatewayTimeout         |
+| 505         | HTTP Version Not Supported   | SendHTTPVersionNotSupported|
+
 
 ## 🧪 Running Tests
 To run tests, run the following command
