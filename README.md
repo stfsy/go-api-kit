@@ -41,7 +41,7 @@ go get https://github.com/stfsy/go-api-kit
 ```
 
 ## 🚀 Usage
-###
+### main.go
 ```golang
 package main
 
@@ -99,6 +99,10 @@ This module will read the following environment variables.
 
 #### Env Vars
 - `API_KIT_ENV`: default=production
+- `API_KIT_MAX_BODY_SIZE`: default=10485760 (bytes) = 10 MB
+- `API_KIT_READ_TIMEOUT`: default=10 (seconds)
+- `API_KIT_WRITE_TIMEOUT`: default=10 (seconds)
+- `API_KIT_IDLE_TIMEOUT`: default=620 (seconds)
 #### Standard Env Vars
 - `PORT`: default=8080
 
