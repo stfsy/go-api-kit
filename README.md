@@ -278,6 +278,26 @@ handlers.SendInternalServerError(w, nil)
 | 504         | Gateway Timeout              | SendGatewayTimeout         |
 | 505         | HTTP Version Not Supported   | SendHTTPVersionNotSupported|
 
+---
+
+### ValidatingHandler (Generic Request Validation)
+Wraps your handler to automatically decode and validate JSON request bodies for POST, PUT, and PATCH methods. For other methods, the handler receives nil as the payload.
+
+**Usage:**
+```go
+import "github.com/stfsy/go-api-kit/server/handlers"
+
+type MyPayload struct {
+    Name string `json:"name" validate:"required"`
+}
+
+handlers.ValidatingHandler[MyPayload](func(w http.ResponseWriter, r *http.Request, p *MyPayload) {
+    // Use validated payload
+    w.Write([]byte(p.Name))
+})
+```
+[Source](server/handlers/validating_handler.go)
+
 
 ## 🧪 Running Tests
 To run tests, run the following command
