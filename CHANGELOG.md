@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/stfsy/go-api-kit/compare/v1.1.0...v1.2.0) (2025-08-23)
+
+
+### Features
+
+* add validating handler ([782458a](https://github.com/stfsy/go-api-kit/commit/782458a2d3805c6ea906909046e2bf8820523192))
+
 ## [1.1.0](https://github.com/stfsy/go-api-kit/compare/v1.0.0...v1.1.0) (2025-08-21)
 
 
