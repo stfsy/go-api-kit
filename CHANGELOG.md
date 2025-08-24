@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0](https://github.com/stfsy/go-api-kit/compare/v1.2.0...v1.3.0) (2025-08-24)
+
+
+### Features
+
+* add struct validator ([430ec5a](https://github.com/stfsy/go-api-kit/commit/430ec5a370b2f97a2d256a299fc260a5fbb5af53))
+* application/problem+json content type for all errors ([e511006](https://github.com/stfsy/go-api-kit/commit/e5110062bcbd4e72efc7bdf13c4327164a250806))
+* enable request body validation ([fd075f1](https://github.com/stfsy/go-api-kit/commit/fd075f1563dc30ca1fafb9911a7559db01afbb94))
+
 ## [1.2.0](https://github.com/stfsy/go-api-kit/compare/v1.1.0...v1.2.0) (2025-08-23)
 
 
