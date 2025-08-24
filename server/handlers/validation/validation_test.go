@@ -63,7 +63,10 @@ type CustomTagStruct struct {
 }
 
 func TestValidateStruct_CustomValidator(t *testing.T) {
-	validate.RegisterValidation("foo", customFoo)
+	err := validate.RegisterValidation("foo", customFoo)
+	if err != nil {
+		t.Fatalf("failed to register custom validator: %v", err)
+	}
 	s := CustomTagStruct{Foo: "bar"}
 	errors := ValidateStruct(s)
 	if errors["foo"].Validator != "foo" {
