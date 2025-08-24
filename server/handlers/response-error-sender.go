@@ -6,9 +6,9 @@ import (
 )
 
 type HttpError struct {
-	Title   string      `json:"title"`
-	Status  int         `json:"status"`
-	Details interface{} `json:"details,omitempty"`
+	Title   string `json:"title"`
+	Status  int    `json:"status"`
+	Details any    `json:"details,omitempty"`
 }
 
 type ErrorDetails map[string]map[string]string
