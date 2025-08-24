@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/stfsy/go-api-kit/compare/v1.3.0...v1.4.0) (2025-08-24)
+
+
+### Features
+
+* add new method to marshall and respond with struct ([3b3003c](https://github.com/stfsy/go-api-kit/commit/3b3003ce8d3b1b48421e90d32626fba3c6db0722))
+
 ## [1.3.0](https://github.com/stfsy/go-api-kit/compare/v1.2.0...v1.3.0) (2025-08-24)
 
 
