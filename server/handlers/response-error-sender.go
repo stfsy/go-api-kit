@@ -13,9 +13,8 @@ type HttpError struct {
 
 func sendError(rw http.ResponseWriter, httpError HttpError) {
 	payload, _ := json.Marshal(httpError)
-	rw.Header().Set(HeaderContentType, ContentTypeJson)
-	rw.WriteHeader(httpError.Status)
-	_ = send(rw, payload)
+	rw.Header().Set(HeaderContentType, ContentTypeProblemJson)
+	_ = send(rw, payload, httpError.Status)
 }
 
 // 400 Bad Request

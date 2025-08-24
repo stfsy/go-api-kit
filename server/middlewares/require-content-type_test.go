@@ -98,7 +98,7 @@ func TestSendNotFound(t *testing.T) {
 	res := recorder.Result()
 
 	assert.Equal(415, res.StatusCode)
-	assert.Equal("application/json", res.Header.Get("Content-Type"))
+	assert.Equal("application/problem+json", res.Header.Get("Content-Type"))
 
 	// Check response body
 	var payload handlers.HttpError

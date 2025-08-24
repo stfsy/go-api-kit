@@ -16,7 +16,7 @@ func TestMethodNotAllowedHandler(t *testing.T) {
 	res := recorder.Result()
 
 	assert.Equal(405, res.StatusCode)
-	assert.Equal("application/json", res.Header.Get("Content-Type"))
+	assert.Equal("application/problem+json", res.Header.Get("Content-Type"))
 
 	// Check response body
 	var payload HttpError

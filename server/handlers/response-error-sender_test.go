@@ -47,7 +47,7 @@ func GenericTest(t *testing.T, fn func(rw http.ResponseWriter, details map[strin
 			res := recorder.Result()
 
 			assert.Equal(tc.status, res.StatusCode)
-			assert.Equal("application/json", res.Header.Get("Content-Type"))
+			assert.Equal("application/problem+json", res.Header.Get("Content-Type"))
 
 			// Check response body
 			var resp HttpError
