@@ -16,6 +16,7 @@ func TestValidatingHandler_Success(t *testing.T) {
 	payload := testPayload{Name: "test"}
 	body, _ := json.Marshal(payload)
 	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
 	handlerCalled := false
@@ -27,6 +28,10 @@ func TestValidatingHandler_Success(t *testing.T) {
 	}
 
 	ValidatingHandler[testPayload](handler)(w, req)
+
+	if w.Result().StatusCode != http.StatusOK {
+		t.Errorf("expected status %d, got %d", http.StatusOK, w.Result().StatusCode)
+	}
 
 	if !handlerCalled {
 		t.Error("handler was not called on valid payload")
@@ -48,6 +53,9 @@ func TestValidatingHandler_NoBodyMethods(t *testing.T) {
 		ValidatingHandler[testPayload](handler)(w, req)
 		if !handlerCalled {
 			t.Errorf("handler was not called for method %s", method)
+		}
+		if w.Result().StatusCode != http.StatusOK {
+			t.Errorf("expected status %d, got %d for method %s", http.StatusOK, w.Result().StatusCode, method)
 		}
 	}
 }
@@ -81,5 +89,8 @@ func TestValidatingHandler_DeleteWithNoBody(t *testing.T) {
 	ValidatingHandler[testPayload](handler)(w, req)
 	if !handlerCalled {
 		t.Error("handler was not called for DELETE with no body")
+	}
+	if w.Result().StatusCode != http.StatusOK {
+		t.Errorf("expected status %d, got %d for DELETE", http.StatusOK, w.Result().StatusCode)
 	}
 }

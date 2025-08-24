@@ -16,13 +16,6 @@ type FieldErrorDetail struct {
 	Message   string `json:"message"`
 }
 
-// ValidationErrorResponse represents the response for validation errors (grouped by field)
-type ValidationErrorResponse struct {
-	Title  string                      `json:"title"`
-	Status int                         `json:"status"`
-	Errors map[string]FieldErrorDetail `json:"errors"`
-}
-
 // ValidateStruct validates a struct and returns a map of field errors
 func ValidateStruct(s interface{}) map[string]FieldErrorDetail {
 	errors := make(map[string]FieldErrorDetail)

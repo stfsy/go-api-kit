@@ -6,10 +6,12 @@ import (
 )
 
 type HttpError struct {
-	Title   string            `json:"title"`
-	Status  int               `json:"status"`
-	Details map[string]string `json:"details,omitempty"`
+	Title   string      `json:"title"`
+	Status  int         `json:"status"`
+	Details interface{} `json:"details,omitempty"`
 }
+
+type ErrorDetails map[string]map[string]string
 
 func sendError(rw http.ResponseWriter, httpError HttpError) {
 	payload, _ := json.Marshal(httpError)
@@ -18,7 +20,15 @@ func sendError(rw http.ResponseWriter, httpError HttpError) {
 }
 
 // 400 Bad Request
-func SendBadRequest(rw http.ResponseWriter, details map[string]string) {
+func SendBadRequest(rw http.ResponseWriter, details ErrorDetails) {
+	sendError(rw, HttpError{
+		Title:   "Bad Request",
+		Status:  http.StatusBadRequest,
+		Details: details,
+	})
+}
+
+func SendValidationError(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Bad Request",
 		Status:  http.StatusBadRequest,
@@ -27,7 +37,7 @@ func SendBadRequest(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 401 Unauthorized
-func SendUnauthorized(rw http.ResponseWriter, details map[string]string) {
+func SendUnauthorized(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Unauthorized",
 		Status:  http.StatusUnauthorized,
@@ -36,7 +46,7 @@ func SendUnauthorized(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 403 Forbidden
-func SendForbidden(rw http.ResponseWriter, details map[string]string) {
+func SendForbidden(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Forbidden",
 		Status:  http.StatusForbidden,
@@ -45,7 +55,7 @@ func SendForbidden(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 404 Not Found
-func SendNotFound(rw http.ResponseWriter, details map[string]string) {
+func SendNotFound(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Not Found",
 		Status:  http.StatusNotFound,
@@ -54,7 +64,7 @@ func SendNotFound(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 405 Method Not Allowed
-func SendMethodNotAllowed(rw http.ResponseWriter, details map[string]string) {
+func SendMethodNotAllowed(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Method Not Allowed",
 		Status:  http.StatusMethodNotAllowed,
@@ -63,7 +73,7 @@ func SendMethodNotAllowed(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 406 Not Acceptable
-func SendNotAcceptable(rw http.ResponseWriter, details map[string]string) {
+func SendNotAcceptable(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Not Acceptable",
 		Status:  http.StatusNotAcceptable,
@@ -72,7 +82,7 @@ func SendNotAcceptable(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 408 Request Timeout
-func SendRequestTimeout(rw http.ResponseWriter, details map[string]string) {
+func SendRequestTimeout(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Request Timeout",
 		Status:  http.StatusRequestTimeout,
@@ -81,7 +91,7 @@ func SendRequestTimeout(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 409 Conflict
-func SendConflict(rw http.ResponseWriter, details map[string]string) {
+func SendConflict(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Conflict",
 		Status:  http.StatusConflict,
@@ -90,7 +100,7 @@ func SendConflict(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 410 Gone
-func SendGone(rw http.ResponseWriter, details map[string]string) {
+func SendGone(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Gone",
 		Status:  http.StatusGone,
@@ -99,7 +109,7 @@ func SendGone(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 411 Length Required
-func SendLengthRequired(rw http.ResponseWriter, details map[string]string) {
+func SendLengthRequired(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Length Required",
 		Status:  http.StatusLengthRequired,
@@ -108,7 +118,7 @@ func SendLengthRequired(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 412 Precondition Failed
-func SendPreconditionFailed(rw http.ResponseWriter, details map[string]string) {
+func SendPreconditionFailed(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Precondition Failed",
 		Status:  http.StatusPreconditionFailed,
@@ -117,7 +127,7 @@ func SendPreconditionFailed(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 413 Payload Too Large
-func SendPayloadTooLarge(rw http.ResponseWriter, details map[string]string) {
+func SendPayloadTooLarge(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Payload Too Large",
 		Status:  413,
@@ -126,7 +136,7 @@ func SendPayloadTooLarge(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 414 URI Too Long
-func SendURITooLong(rw http.ResponseWriter, details map[string]string) {
+func SendURITooLong(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "URI Too Long",
 		Status:  414,
@@ -135,7 +145,7 @@ func SendURITooLong(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 415 Unsupported Media Type
-func SendUnsupportedMediaType(rw http.ResponseWriter, details map[string]string) {
+func SendUnsupportedMediaType(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Unsupported Media Type",
 		Status:  http.StatusUnsupportedMediaType,
@@ -144,7 +154,7 @@ func SendUnsupportedMediaType(rw http.ResponseWriter, details map[string]string)
 }
 
 // 416 Range Not Satisfiable
-func SendRangeNotSatisfiable(rw http.ResponseWriter, details map[string]string) {
+func SendRangeNotSatisfiable(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Range Not Satisfiable",
 		Status:  416,
@@ -153,7 +163,7 @@ func SendRangeNotSatisfiable(rw http.ResponseWriter, details map[string]string) 
 }
 
 // 417 Expectation Failed
-func SendExpectationFailed(rw http.ResponseWriter, details map[string]string) {
+func SendExpectationFailed(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Expectation Failed",
 		Status:  http.StatusExpectationFailed,
@@ -162,7 +172,7 @@ func SendExpectationFailed(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 422 Unprocessable Entity
-func SendUnprocessableEntity(rw http.ResponseWriter, details map[string]string) {
+func SendUnprocessableEntity(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Unprocessable Entity",
 		Status:  http.StatusUnprocessableEntity,
@@ -171,7 +181,7 @@ func SendUnprocessableEntity(rw http.ResponseWriter, details map[string]string) 
 }
 
 // 429 Too Many Requests
-func SendTooManyRequests(rw http.ResponseWriter, details map[string]string) {
+func SendTooManyRequests(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Too Many Requests",
 		Status:  http.StatusTooManyRequests,
@@ -180,7 +190,7 @@ func SendTooManyRequests(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 500 Internal Server Error
-func SendInternalServerError(rw http.ResponseWriter, details map[string]string) {
+func SendInternalServerError(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Internal Server Error",
 		Status:  http.StatusInternalServerError,
@@ -189,7 +199,7 @@ func SendInternalServerError(rw http.ResponseWriter, details map[string]string) 
 }
 
 // 501 Not Implemented
-func SendNotImplemented(rw http.ResponseWriter, details map[string]string) {
+func SendNotImplemented(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Not Implemented",
 		Status:  http.StatusNotImplemented,
@@ -198,7 +208,7 @@ func SendNotImplemented(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 502 Bad Gateway
-func SendBadGateway(rw http.ResponseWriter, details map[string]string) {
+func SendBadGateway(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Bad Gateway",
 		Status:  http.StatusBadGateway,
@@ -207,7 +217,7 @@ func SendBadGateway(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 503 Service Unavailable
-func SendServiceUnavailable(rw http.ResponseWriter, details map[string]string) {
+func SendServiceUnavailable(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Service Unavailable",
 		Status:  http.StatusServiceUnavailable,
@@ -216,7 +226,7 @@ func SendServiceUnavailable(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 504 Gateway Timeout
-func SendGatewayTimeout(rw http.ResponseWriter, details map[string]string) {
+func SendGatewayTimeout(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "Gateway Timeout",
 		Status:  http.StatusGatewayTimeout,
@@ -225,7 +235,7 @@ func SendGatewayTimeout(rw http.ResponseWriter, details map[string]string) {
 }
 
 // 505 HTTP Version Not Supported
-func SendHTTPVersionNotSupported(rw http.ResponseWriter, details map[string]string) {
+func SendHTTPVersionNotSupported(rw http.ResponseWriter, details ErrorDetails) {
 	sendError(rw, HttpError{
 		Title:   "HTTP Version Not Supported",
 		Status:  http.StatusHTTPVersionNotSupported,

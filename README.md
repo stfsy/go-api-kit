@@ -210,7 +210,6 @@ func main() {
 ## Functions
 
 ### Response Sender Functions
-
 These functions help you send plain text or JSON responses easily:
 
 #### SendText
@@ -236,15 +235,39 @@ handlers.SendJson(w, []byte(`{"message":"ok"}`))
 ---
 
 ### Response Error Sender Functions
+These functions send standardized error responses with the correct HTTP status code and a JSON body. Each function takes an `http.ResponseWriter` and an optional `details` map for additional error info. The error response now uses the following structure:
 
-These functions send standardized error responses with the correct HTTP status code and a JSON body. Each function takes an `http.ResponseWriter` and an optional `details` map for additional error info.
+```json
+{
+	"status": 400,
+	"title": "Bad Request",
+	"details": {
+		"zip_code": {
+			"validator": "required",
+			"message": "must not be undefined",
+		}
+	}
+}
+```
 
 #### Example usage:
 ```go
 import "github.com/stfsy/go-api-kit/server/handlers"
 
-handlers.SendBadRequest(w, map[string]string{"zip_code": "must match the required pattern"})
-handlers.SendUnauthorized(w, map[string]string{"x-api-key": "must not be null"})
+// With details (field-level errors):
+handlers.SendBadRequest(w, handlers.ErrorDetails{
+	"zip_code": {
+		"validator": "required",
+		"message": "must not be undefined",
+	}
+})
+handlers.SendUnauthorized(w, handlers.ErrorDetails{
+	"x-api-key": {
+		"message": "must not be null",
+	},
+})
+
+// Without details (generic error):
 handlers.SendInternalServerError(w, nil)
 ```
 [Source](server/handlers/response-error-sender.go)
@@ -283,7 +306,9 @@ handlers.SendInternalServerError(w, nil)
 ### ValidatingHandler (Generic Request Validation)
 Wraps your handler to automatically decode and validate JSON request bodies for POST, PUT, and PATCH methods. For other methods, the handler receives nil as the payload.
 
-**Usage:**
+To enable JSON payload validation, add https://github.com/go-playground/validator compatible tags to your struct. 
+
+#### Usage
 ```go
 import "github.com/stfsy/go-api-kit/server/handlers"
 
@@ -297,6 +322,22 @@ handlers.ValidatingHandler[MyPayload](func(w http.ResponseWriter, r *http.Reques
 })
 ```
 [Source](server/handlers/validating_handler.go)
+
+#### Validation Errors
+Validation errors will be sent to the client automatically with status code `400`. The response will have content type `application/problem+json`. Here's an example:
+
+```json
+{
+	"status": 400,
+	"title": "Bad Request",
+	"details": {
+		"zip_code": {
+			"validator": "required",
+			"message": "must not be undefined",
+		}
+	}
+}
+```
 
 
 ## 🧪 Running Tests

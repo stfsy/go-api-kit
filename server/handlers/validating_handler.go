@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/stfsy/go-api-kit/server/handlers/validation"
 )
 
-var validate = validator.New(validator.WithRequiredStructEnabled())
+var EMPTY_MAP = make(map[string]map[string]string)
 
 func ValidatingHandler[T any](handler func(http.ResponseWriter, *http.Request, *T)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -16,7 +16,22 @@ func ValidatingHandler[T any](handler func(http.ResponseWriter, *http.Request, *
 			var body T
 			decoder := json.NewDecoder(r.Body)
 			if err := decoder.Decode(&body); err != nil {
-				SendBadRequest(w, map[string]string{})
+				SendBadRequest(w, EMPTY_MAP)
+				return
+			}
+
+			errors := validation.ValidateStruct(&body)
+			if len(errors) != 0 {
+				// convert errors to ErrorDetails
+				errorDetails := make(ErrorDetails, len(errors))
+
+				for field, errDetail := range errors {
+					fieldErrors := make(map[string]string, 1)
+					fieldErrors["Message"] = errDetail.Message
+					fieldErrors["Validator"] = errDetail.Validator
+					errorDetails[field] = fieldErrors
+				}
+				SendValidationError(w, errorDetails)
 				return
 			}
 
