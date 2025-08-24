@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -32,4 +33,14 @@ func SendText(rw http.ResponseWriter, response string) {
 func SendJson(rw http.ResponseWriter, response []byte) {
 	rw.Header().Set(HeaderContentType, ContentTypeJson)
 	_ = send(rw, response, http.StatusOK)
+}
+
+func SendStructAsJson(rw http.ResponseWriter, v interface{}) {
+	rw.Header().Set(HeaderContentType, ContentTypeJson)
+	data, err := json.Marshal(v)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Unable to marshal response to JSON %s", err.Error()))
+		SendInternalServerError(rw, nil)
+	}
+	SendJson(rw, data)
 }

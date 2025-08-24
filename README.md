@@ -222,6 +222,7 @@ handlers.SendText(w, "Hello, world!")
 ```
 [Source](server/handlers/response-sender.go)
 
+
 #### SendJson
 Sends a JSON response (sets Content-Type to application/json).
 
@@ -229,6 +230,21 @@ Sends a JSON response (sets Content-Type to application/json).
 import "github.com/stfsy/go-api-kit/server/handlers"
 
 handlers.SendJson(w, []byte(`{"message":"ok"}`))
+```
+[Source](server/handlers/response-sender.go)
+
+#### SendStructAsJson
+Sends a struct as a JSON response (sets Content-Type to application/json). The struct is marshaled to JSON automatically.
+
+```go
+import "github.com/stfsy/go-api-kit/server/handlers"
+
+type MyResponse struct {
+	Status int    `json:"status"`
+	Title  string `json:"title"`
+}
+
+handlers.SendStructAsJson(w, MyResponse{Status: 200, Title: "Success"})
 ```
 [Source](server/handlers/response-sender.go)
 
