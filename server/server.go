@@ -102,6 +102,7 @@ func createMiddlewareHandler() *negroni.Negroni {
 	n.Use(negroni.NewRecovery())
 	n.Use(middlewares.NewRequireMaxBodyLengthMiddleware())
 	n.Use(middlewares.NewAccessLog())
+	n.Use(middlewares.NewRequireContentLengthOrTransferEncodingMiddleware())
 	n.Use(middlewares.NewRequireContentTypeMiddleware("application/json"))
 	n.Use(middlewares.NewRespondWithSecurityHeadersMiddleware())
 	n.Use(middlewares.NewNoCacheHeadersMiddleware())
