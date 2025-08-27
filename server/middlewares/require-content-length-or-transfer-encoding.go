@@ -14,7 +14,8 @@ func NewRequireContentLengthOrTransferEncodingMiddleware() *RequireContentLength
 }
 
 func (m *RequireContentLengthOrTransferEncodingMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	if r.Method == http.MethodPost && r.ProtoMajor == 1 && r.ProtoMinor == 1 {
+	isHttp11 := r.ProtoMajor == 1 && r.ProtoMinor == 1
+	if r.Method == http.MethodPost && isHttp11 {
 		_, hasContentLength := r.Header["Content-Length"]
 		_, hasTransferEncoding := r.Header["Transfer-Encoding"]
 		if !hasContentLength && !hasTransferEncoding {

@@ -14,7 +14,8 @@ func NewRequireHTTP11Middleware() *RequireHTTP11Middleware {
 }
 
 func (m *RequireHTTP11Middleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	if !(r.ProtoMajor == 1 && r.ProtoMinor == 1) {
+	isHttp11 := r.ProtoMajor == 1 && r.ProtoMinor == 1
+	if !isHttp11 {
 		handlers.SendBadRequest(rw, nil)
 		return
 	}
