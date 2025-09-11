@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.5.0](https://github.com/stfsy/go-api-kit/compare/v1.4.0...v1.5.0) (2025-09-11)
+
+
+### Features
+
+* add http 1.1 only middleware ([d6569ba](https://github.com/stfsy/go-api-kit/commit/d6569bab6e77b6040193c3dfd972378261fda780))
+* add middleware checking content length header ([fd60332](https://github.com/stfsy/go-api-kit/commit/fd60332fd043672e5f32700ce3c96258bb312b13))
+* allow customizing the middleware stack ([ed776e1](https://github.com/stfsy/go-api-kit/commit/ed776e17f8bdc5412939ff935c04fd5f31f17cbd))
+
 ## [1.4.0](https://github.com/stfsy/go-api-kit/compare/v1.3.0...v1.4.0) (2025-08-24)
 
 
