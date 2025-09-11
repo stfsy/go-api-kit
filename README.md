@@ -23,8 +23,9 @@ go get https://github.com/stfsy/go-api-kit
 ```
 
 ## 🚀 Usage
+
 ### main.go
-```golang
+```go
 package main
 
 import (
@@ -35,6 +36,7 @@ import (
 	"syscall"
 
 	"github.com/stfsy/go-api-kit/server"
+	"github.com/urfave/negroni"
 )
 
 var s *server.Server
@@ -50,21 +52,27 @@ func stopServerAfterSignal() {
 	<-sigChan
 
 	s.Stop()
-
 	fmt.Println("Graceful shutdown complete.")
 }
 
 func startServerNonBlocking() {
 	s = server.NewServer(&server.ServerConfig{
-		MuxCallback: func(*http.ServeMux) {
-			// add your endpoints and middlewares here
+		// Register endpoints and custom middlewares
+		MuxCallback: func(mux *http.ServeMux) {
+			mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+				w.Write([]byte("OK"))
+			})
 		},
+		// Customize the Negroni middleware stack
+		MiddlewareCallback: func(n *negroni.Negroni) *negroni.Negroni {
+			// n.Use(myCustomMiddleware)
+			return n
+		},
+		// Called after the server starts listening, before serving requests
 		ListenCallback: func() {
-			// do sth just after listen was called on the server instance and
-			// just before the server starts serving requests
+			fmt.Println("Server is now listening!")
 		},
-		// port override is optional but can be used if you want to
-		// define the port manually. If empty the value of env.PORT is used.
+		// Manually set the port. If empty, uses env.PORT
 		PortOverride: "8080",
 	})
 	go func() {
@@ -74,6 +82,34 @@ func startServerNonBlocking() {
 		}
 	}()
 }
+```
+
+#### `ServerConfig` struct
+
+| Field                | Type                                   | Description                                                                                   |
+|----------------------|----------------------------------------|-----------------------------------------------------------------------------------------------|
+| `MuxCallback`        | `func(*http.ServeMux)`                 | Register endpoints and custom middlewares to the HTTP mux.                                    |
+| `MiddlewareCallback` | `func(*negroni.Negroni) *negroni.Negroni` | Customize the Negroni middleware stack before the server starts.                              |
+| `ListenCallback`     | `func()`                               | Called after the server starts listening, before serving requests.                            |
+| `PortOverride`       | `string`                               | Manually set the port. If empty, uses the value of the `PORT` environment variable.           |
+
+**Example:**
+```go
+server.NewServer(&server.ServerConfig{
+	MuxCallback: func(mux *http.ServeMux) {
+		mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("OK"))
+		})
+	},
+	MiddlewareCallback: func(n *negroni.Negroni) *negroni.Negroni {
+		// Add custom middleware if needed
+		return n
+	},
+	ListenCallback: func() {
+		fmt.Println("Server is now listening!")
+	},
+	PortOverride: "8080",
+})
 ```
 
 ## Configuration

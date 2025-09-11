@@ -18,10 +18,16 @@ import (
 
 var logger = utils.NewLogger("server")
 
+// ServerConfig configures the API server's endpoints, middleware, and startup behavior.
 type ServerConfig struct {
-	MuxCallback    func(*http.ServeMux)
+	// MuxCallback registers endpoints and custom middlewares to the HTTP mux.
+	MuxCallback func(*http.ServeMux)
+	// MiddlewareCallback customizes the Negroni middleware stack before the server starts.
+	MiddlewareCallback func(*negroni.Negroni) *negroni.Negroni
+	// ListenCallback is called after the server starts listening, before serving requests.
 	ListenCallback func()
-	PortOverride   string
+	// PortOverride manually sets the port. If empty, uses the PORT environment variable.
+	PortOverride string
 }
 
 type Server struct {
@@ -45,6 +51,9 @@ func (s *Server) Start() error {
 	mux.HandleFunc("/", handlers.NotFoundHandler)
 
 	n := createMiddlewareHandler()
+	if s.serverConfig.MiddlewareCallback != nil {
+		n = s.serverConfig.MiddlewareCallback(n)
+	}
 	n.UseHandler(mux)
 
 	configuration := config.Get()
