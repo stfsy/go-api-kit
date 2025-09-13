@@ -20,42 +20,97 @@ func TestContentType(t *testing.T) {
 		inputValue          string
 		allowedContentTypes string
 		want                int
+		method              string
+		body                string
 	}{
 		{
-			"should accept requests with a matching content type",
-			"application/json; charset=UTF-8",
-			"application/json",
-			http.StatusOK,
+			name:                "should accept requests with a matching content type",
+			inputValue:          "application/json; charset=UTF-8",
+			allowedContentTypes: "application/json",
+			want:                http.StatusOK,
+			method:              http.MethodPost,
+			body:                "{}",
 		},
 		{
-			"should accept requests with a matching content type no charset",
-			"application/json",
-			"application/json",
-			http.StatusOK,
+			name:                "should accept requests with a matching content type no charset",
+			inputValue:          "application/json",
+			allowedContentTypes: "application/json",
+			want:                http.StatusOK,
+			method:              http.MethodPost,
+			body:                "{}",
 		},
 		{
-			"should accept requests with a matching content-type with extra values",
-			"application/json; foo=bar; charset=UTF-8; spam=eggs",
-			"application/json",
-			http.StatusOK,
+			name:                "should accept requests with a matching content-type with extra values",
+			inputValue:          "application/json; foo=bar; charset=UTF-8; spam=eggs",
+			allowedContentTypes: "application/json",
+			want:                http.StatusOK,
+			method:              http.MethodPost,
+			body:                "{}",
 		},
 		{
-			"should accept requests with a matching content type when multiple content types are supported",
-			"text/xml; charset=UTF-8",
-			"text/xml",
-			http.StatusOK,
+			name:                "should accept requests with a matching content type when multiple content types are supported",
+			inputValue:          "text/xml; charset=UTF-8",
+			allowedContentTypes: "text/xml",
+			want:                http.StatusOK,
+			method:              http.MethodPost,
+			body:                "<xml></xml>",
 		},
 		{
-			"should not accept requests with a mismatching content type",
-			"text/plain; charset=latin-1",
-			"application/json",
-			http.StatusUnsupportedMediaType,
+			name:                "should not accept requests with a mismatching content type",
+			inputValue:          "text/plain; charset=latin-1",
+			allowedContentTypes: "application/json",
+			want:                http.StatusUnsupportedMediaType,
+			method:              http.MethodPost,
+			body:                "plain text",
 		},
 		{
-			"should not accept requests with a mismatching content type even if multiple content types are allowed",
-			"text/plain; charset=Latin-1",
-			"text/xml",
-			http.StatusUnsupportedMediaType,
+			name:                "should not accept requests with a mismatching content type even if multiple content types are allowed",
+			inputValue:          "text/plain; charset=Latin-1",
+			allowedContentTypes: "text/xml",
+			want:                http.StatusUnsupportedMediaType,
+			method:              http.MethodPost,
+			body:                "plain text",
+		},
+		// Additional cases for PATCH, PUT, DELETE, and empty body
+		{
+			name:                "PATCH with allowed content type",
+			inputValue:          "application/json",
+			allowedContentTypes: "application/json",
+			want:                http.StatusOK,
+			method:              http.MethodPatch,
+			body:                "{}",
+		},
+		{
+			name:                "PUT with disallowed content type",
+			inputValue:          "text/plain",
+			allowedContentTypes: "application/json",
+			want:                http.StatusUnsupportedMediaType,
+			method:              http.MethodPut,
+			body:                "plain text",
+		},
+		{
+			name:                "DELETE with body and allowed content type",
+			inputValue:          "application/json",
+			allowedContentTypes: "application/json",
+			want:                http.StatusOK,
+			method:              http.MethodDelete,
+			body:                "{}",
+		},
+		{
+			name:                "Content-Type with charset parameter",
+			inputValue:          "application/json; charset=utf-8",
+			allowedContentTypes: "application/json",
+			want:                http.StatusOK,
+			method:              http.MethodPost,
+			body:                "{}",
+		},
+		{
+			name:                "POST with empty body should skip enforcement",
+			inputValue:          "application/json",
+			allowedContentTypes: "application/json",
+			want:                http.StatusOK,
+			method:              http.MethodPost,
+			body:                "",
 		},
 	}
 
@@ -69,8 +124,7 @@ func TestContentType(t *testing.T) {
 			r := negroni.New()
 			r.Use(NewRequireContentTypeMiddleware(tt.allowedContentTypes))
 
-			body := []byte("This is my content. There are many like this but this one is mine")
-			req := httptest.NewRequest("POST", "/", bytes.NewReader(body))
+			req := httptest.NewRequest(tt.method, "/", bytes.NewReader([]byte(tt.body)))
 			req.Header.Set("Content-Type", tt.inputValue)
 
 			r.ServeHTTP(recorder, req)
