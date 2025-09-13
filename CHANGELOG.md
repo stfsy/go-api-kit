@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.6.0](https://github.com/stfsy/go-api-kit/compare/v1.5.0...v1.6.0) (2025-09-13)
+
+
+### Features
+
+* check headers of put and patch requests too ([61fc4e6](https://github.com/stfsy/go-api-kit/commit/61fc4e6c945c6d69a3bb418442816b64371c015b))
+* update error handling, load server config ([3b2c1e6](https://github.com/stfsy/go-api-kit/commit/3b2c1e6b526aa37bc4f376e87485eddea48a324f))
+
+
+### Performance Improvements
+
+* use map to store security headers ([24d08a4](https://github.com/stfsy/go-api-kit/commit/24d08a481f724095874e1bbe3b164b6b2803657a))
+
 ## [1.5.0](https://github.com/stfsy/go-api-kit/compare/v1.4.0...v1.5.0) (2025-09-11)
 
 
