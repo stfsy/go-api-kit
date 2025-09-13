@@ -19,8 +19,7 @@ func NewRequireMaxBodyLengthMiddleware() *RequireMaxBodyLengthMiddleware {
 	}
 }
 
-// AllowContentType enforces a whitelist of request Content-Types otherwise responds
-// with a 415 Unsupported Media Type status.
+// ServeHTTP enforces a maximum request body length, responding with 413 Payload Too Large if exceeded.
 func (m *RequireMaxBodyLengthMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	r.Body = http.MaxBytesReader(rw, r.Body, int64(m.maxSize))
 	next.ServeHTTP(rw, r)
