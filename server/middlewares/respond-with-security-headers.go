@@ -8,19 +8,21 @@ import (
 
 type SecurityHeadersMiddleware struct{}
 
-var securityHeaders []security.HeaderKeyValue = []security.HeaderKeyValue{
-	security.NewCrossOriginEmbedderPolicy().HeaderKeyValue,
-	security.NewCrossOriginOpenerPolicy().HeaderKeyValue,
-	security.NewCrossOriginResourcePolicy().HeaderKeyValue,
-	security.NewOriginAgentClusterPolicy().HeaderKeyValue,
-	security.NewReferrerPolicy().HeaderKeyValue,
-	security.NewStrictTransportSecurityPolicy().HeaderKeyValue,
-	security.NewXContentTypeOptions().HeaderKeyValue,
-	security.NewXDownloadOptions().HeaderKeyValue,
-	security.NewXFrameOptions().HeaderKeyValue,
-	security.NewXPermittedCrossDomainOptions().HeaderKeyValue,
-	security.NewXssProtection().HeaderKeyValue,
-}
+var securityHeadersMap = func() map[string]string {
+	m := make(map[string]string, 11)
+	m[security.NewCrossOriginEmbedderPolicy().Name] = security.NewCrossOriginEmbedderPolicy().Value
+	m[security.NewCrossOriginOpenerPolicy().Name] = security.NewCrossOriginOpenerPolicy().Value
+	m[security.NewCrossOriginResourcePolicy().Name] = security.NewCrossOriginResourcePolicy().Value
+	m[security.NewOriginAgentClusterPolicy().Name] = security.NewOriginAgentClusterPolicy().Value
+	m[security.NewReferrerPolicy().Name] = security.NewReferrerPolicy().Value
+	m[security.NewStrictTransportSecurityPolicy().Name] = security.NewStrictTransportSecurityPolicy().Value
+	m[security.NewXContentTypeOptions().Name] = security.NewXContentTypeOptions().Value
+	m[security.NewXDownloadOptions().Name] = security.NewXDownloadOptions().Value
+	m[security.NewXFrameOptions().Name] = security.NewXFrameOptions().Value
+	m[security.NewXPermittedCrossDomainOptions().Name] = security.NewXPermittedCrossDomainOptions().Value
+	m[security.NewXssProtection().Name] = security.NewXssProtection().Value
+	return m
+}()
 
 func NewRespondWithSecurityHeadersMiddleware() *SecurityHeadersMiddleware {
 	return &SecurityHeadersMiddleware{}
@@ -28,10 +30,8 @@ func NewRespondWithSecurityHeadersMiddleware() *SecurityHeadersMiddleware {
 
 func (m *SecurityHeadersMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	headers := rw.Header()
-
-	for _, sh := range securityHeaders {
-		headers.Set(sh.Name, sh.Value)
+	for k, v := range securityHeadersMap {
+		headers.Set(k, v)
 	}
-
 	next(rw, r)
 }
