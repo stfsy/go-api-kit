@@ -15,6 +15,8 @@ func ValidatingHandler[T any](handler func(http.ResponseWriter, *http.Request, *
 		case http.MethodPost, http.MethodPut, http.MethodPatch:
 			var body T
 			decoder := json.NewDecoder(r.Body)
+			decoder.DisallowUnknownFields()
+
 			if err := decoder.Decode(&body); err != nil {
 				SendBadRequest(w, EMPTY_MAP)
 				return

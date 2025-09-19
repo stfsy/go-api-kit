@@ -94,3 +94,21 @@ func TestValidatingHandler_DeleteWithNoBody(t *testing.T) {
 		t.Errorf("expected status %d, got %d for DELETE", http.StatusOK, w.Result().StatusCode)
 	}
 }
+
+func TestValidatingHandler_UnknownFields(t *testing.T) {
+	// Unknown field 'unknown' should trigger BadRequest
+	body := []byte(`{"name":"test", "unknown":"value"}`)
+	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	handler := func(w http.ResponseWriter, r *http.Request, p *testPayload) {
+		t.Error("handler should not be called on payload with unknown fields")
+	}
+
+	ValidatingHandler(handler)(w, req)
+
+	if w.Result().StatusCode != http.StatusBadRequest {
+		t.Errorf("expected status %d, got %d", http.StatusBadRequest, w.Result().StatusCode)
+	}
+}
