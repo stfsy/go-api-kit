@@ -15,7 +15,9 @@ func NewRequireHTTP11Middleware() *RequireHTTP11Middleware {
 
 func (m *RequireHTTP11Middleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	// Allow HTTP/1.1 and newer protocols such as HTTP/2.0. Block HTTP/1.0 clients.
-	if !(r.ProtoMajor > 1 || (r.ProtoMajor == 1 && r.ProtoMinor >= 1)) {
+	isHttp2OrNewer := r.ProtoMajor > 1
+	isHttp11 := r.ProtoMajor == 1 && r.ProtoMinor >= 1
+	if !isHttp2OrNewer && !isHttp11 {
 		handlers.SendBadRequest(rw, nil)
 		return
 	}
