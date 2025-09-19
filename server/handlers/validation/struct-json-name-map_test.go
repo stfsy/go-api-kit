@@ -3,6 +3,8 @@ package validation
 import (
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // Test struct with nested fields and json tags
@@ -24,13 +26,13 @@ type Deep struct {
 func TestGetOrBuildFieldMap_Cache(t *testing.T) {
 	typ := reflect.TypeOf(Outer{})
 	// First call should build and cache
-	m1 := GetOrBuildFieldMap(typ)
+	m1 := GetOrBuildFieldMap(typ, "", "")
 	if m1["Inner1.FieldA"] != "inner1.field_a" {
 		t.Errorf("expected Inner1.FieldA -> inner1.field_a, got %s", m1["Inner1.FieldA"])
 	}
 	// Second call should hit cache (simulate by changing map and checking it persists)
 	m1["test"] = "value"
-	m2 := GetOrBuildFieldMap(typ)
+	m2 := GetOrBuildFieldMap(typ, "", "")
 	if m2["test"] != "value" {
 		t.Errorf("expected cache to persist custom key, got %s", m2["test"])
 	}
@@ -71,4 +73,39 @@ func TestBuildJSONFieldMap_DeeplyNested(t *testing.T) {
 			t.Errorf("expected %s -> %s, got %s", k, v, m[k])
 		}
 	}
+}
+
+type DeepNested struct {
+	Level1 struct {
+		Level2 struct {
+			Level3 struct {
+				Field string `json:"deep_field"`
+			} `json:"level3"`
+		} `json:"level2"`
+	} `json:"level1"`
+}
+
+type UnusualTags struct {
+	Normal   string `json:"normal"`
+	Omit     string `json:"-"`
+	EmptyTag string `json:""`
+	NoTag    string
+}
+
+func TestGetOrBuildFieldMap_DeepNested(t *testing.T) {
+	typ := reflect.TypeOf(DeepNested{})
+	m := GetOrBuildFieldMap(typ, "", "")
+	// Should contain the deepest field
+	assert.Contains(t, m, "Level1.Level2.Level3.Field")
+	assert.Equal(t, "level1.level2.level3.deep_field", m["Level1.Level2.Level3.Field"])
+}
+
+func TestGetOrBuildFieldMap_UnusualTags(t *testing.T) {
+	typ := reflect.TypeOf(UnusualTags{})
+	m := GetOrBuildFieldMap(typ, "", "")
+	assert.Equal(t, "normal", m["Normal"])
+	// Omit and empty tags should fallback to lowercased field name
+	assert.Equal(t, "omit", m["Omit"])
+	assert.Equal(t, "emptytag", m["EmptyTag"])
+	assert.Equal(t, "notag", m["NoTag"])
 }

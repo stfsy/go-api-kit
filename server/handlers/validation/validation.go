@@ -23,7 +23,8 @@ func ValidateStruct(s interface{}) map[string]FieldErrorDetail {
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
-	fieldMap := buildJSONFieldMap(t, "", "")
+
+	fieldMap := GetOrBuildFieldMap(t, "", "")
 
 	err := validate.Struct(s)
 	if err != nil {

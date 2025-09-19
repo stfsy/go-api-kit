@@ -26,11 +26,11 @@ import (
 var structFieldMapCache = utils.NewLimitedCache(500)
 
 // GetOrBuildFieldMap returns a cached field map or builds and caches it if not present
-func GetOrBuildFieldMap(t reflect.Type) map[string]string {
+func GetOrBuildFieldMap(t reflect.Type, parentKey, parentTag string) map[string]string {
 	if v, ok := structFieldMapCache.Load(t); ok {
 		return v.(map[string]string)
 	}
-	m := buildJSONFieldMap(t, "", "")
+	m := buildJSONFieldMap(t, parentKey, parentTag)
 	structFieldMapCache.Store(t, m)
 	return m
 }
