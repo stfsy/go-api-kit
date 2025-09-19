@@ -41,6 +41,7 @@ func SendStructAsJson(rw http.ResponseWriter, v interface{}) {
 	if err != nil {
 		logger.Error(fmt.Sprintf("Unable to marshal response to JSON %s", err.Error()))
 		SendInternalServerError(rw, nil)
+		return
 	}
 	SendJson(rw, data)
 }
