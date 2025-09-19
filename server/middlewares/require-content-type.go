@@ -22,15 +22,23 @@ func NewRequireContentTypeMiddleware(allowedContentType string) *RequireContentT
 // AllowContentType enforces a whitelist of request Content-Types otherwise responds
 // with a 415 Unsupported Media Type status.
 func (m *RequireContentTypeMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-
-	if !hasContentLength(r) || !isWriteRequest(r) {
+	// Only enforce content-type for write requests. Non-write requests are passed through.
+	if !isWriteRequest(r) {
 		next.ServeHTTP(rw, r)
 		return
 	}
 
+	// For write requests (POST/PUT/PATCH and DELETE with body), require a valid Content-Type.
+	// This includes chunked requests where ContentLength may be -1. Use the request headers directly.
 	s := strings.ToLower(strings.TrimSpace(r.Header.Get("Content-Type")))
 	if i := strings.Index(s, ";"); i > -1 {
 		s = s[0:i]
+	}
+
+	// If no Content-Type provided for a write request, reject it.
+	if s == "" {
+		handlers.SendUnsupportedMediaType(rw, nil)
+		return
 	}
 
 	if s == m.AllowedContentType {
@@ -41,18 +49,10 @@ func (m *RequireContentTypeMiddleware) ServeHTTP(rw http.ResponseWriter, r *http
 	handlers.SendUnsupportedMediaType(rw, nil)
 }
 
-func hasContentLength(r *http.Request) bool {
-	return r.ContentLength >= 0
-}
-
 func isWriteRequest(r *http.Request) bool {
 	switch r.Method {
-	case http.MethodGet:
-		return false
-	case http.MethodPatch, http.MethodPost, http.MethodPut:
+	case http.MethodPatch, http.MethodPost, http.MethodPut, http.MethodDelete:
 		return true
-	case http.MethodDelete:
-		return r.Body != nil
 	default:
 		return false
 	}
