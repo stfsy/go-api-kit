@@ -34,7 +34,7 @@ func TestRequireHTTP11Middleware(t *testing.T) {
 		{
 			name:         "HTTP/2.0 blocked",
 			proto:        "HTTP/2.0",
-			expectStatus: http.StatusBadRequest,
+			expectStatus: http.StatusOK,
 		},
 	}
 
