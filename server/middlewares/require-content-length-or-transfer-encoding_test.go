@@ -3,7 +3,6 @@ package middlewares
 import (
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -36,6 +35,13 @@ func TestRequireContentLengthOrTransferEncodingMiddleware(t *testing.T) {
 			method:       http.MethodPost,
 			proto:        "HTTP/1.1",
 			headers:      map[string]string{"Content-Length": "10"},
+			expectStatus: http.StatusOK,
+		},
+		{
+			name:         "POST HTTP/1.1 with zero Content-Length",
+			method:       http.MethodPost,
+			proto:        "HTTP/1.1",
+			headers:      map[string]string{"Content-Length": "0"},
 			expectStatus: http.StatusOK,
 		},
 		{
@@ -106,13 +112,13 @@ func TestRequireContentLengthOrTransferEncodingMiddleware(t *testing.T) {
 			for k, v := range tc.headers {
 				switch k {
 				case "Content-Length":
+					// set header directly to detect presence (including "0")
 					if v == "" {
-						// leave default (0)
+						// explicitly set empty header
+						r.Header.Set("Content-Length", "")
 						continue
 					}
-					if n, err := strconv.ParseInt(v, 10, 64); err == nil {
-						r.ContentLength = n
-					}
+					r.Header.Set("Content-Length", v)
 				case "Transfer-Encoding":
 					if v == "" {
 						r.TransferEncoding = nil
