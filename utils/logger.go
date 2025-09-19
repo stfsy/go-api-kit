@@ -7,13 +7,19 @@ import (
 	"github.com/stfsy/go-api-kit/config"
 )
 
+var (
+	isProduction      = config.IsProduction()
+	loggerOptions     = &slog.HandlerOptions{}
+	loggerJsonHandler = slog.NewJSONHandler(os.Stdout, loggerOptions)
+	loggerTextHandler = slog.NewTextHandler(os.Stdout, loggerOptions)
+)
+
 func NewLogger(component string) *slog.Logger {
-	options := &slog.HandlerOptions{}
-	var handler slog.Handler
-	if config.IsProduction() {
-		handler = slog.NewJSONHandler(os.Stdout, options)
+	var loggerHandler slog.Handler
+	if isProduction {
+		loggerHandler = loggerJsonHandler
 	} else {
-		handler = slog.NewTextHandler(os.Stdout, options)
+		loggerHandler = loggerTextHandler
 	}
-	return slog.New(handler).With(slog.String("component", component))
+	return slog.New(loggerHandler).With(slog.String("component", component))
 }
