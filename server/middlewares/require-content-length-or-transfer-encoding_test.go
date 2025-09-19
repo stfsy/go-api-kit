@@ -3,6 +3,7 @@ package middlewares
 import (
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -103,7 +104,24 @@ func TestRequireContentLengthOrTransferEncodingMiddleware(t *testing.T) {
 			r.ProtoMajor = int(tc.proto[5] - '0')
 			r.ProtoMinor = int(tc.proto[7] - '0')
 			for k, v := range tc.headers {
-				r.Header.Set(k, v)
+				switch k {
+				case "Content-Length":
+					if v == "" {
+						// leave default (0)
+						continue
+					}
+					if n, err := strconv.ParseInt(v, 10, 64); err == nil {
+						r.ContentLength = n
+					}
+				case "Transfer-Encoding":
+					if v == "" {
+						r.TransferEncoding = nil
+						continue
+					}
+					r.TransferEncoding = []string{v}
+				default:
+					r.Header.Set(k, v)
+				}
 			}
 			mw.ServeHTTP(rec, r, handler.ServeHTTP)
 			assert.Equal(t, tc.expectStatus, rec.Result().StatusCode)
