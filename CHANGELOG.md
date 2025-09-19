@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.7.0](https://github.com/stfsy/go-api-kit/compare/v1.6.0...v1.7.0) (2025-09-19)
+
+
+### Features
+
+* allow http 1.1 or higher ([7179f7e](https://github.com/stfsy/go-api-kit/commit/7179f7e05b53344bd39cea73ae2711c4a0b87801))
+* also support chunked encodings ([b8d5e97](https://github.com/stfsy/go-api-kit/commit/b8d5e97ca84158e20019b569909a8219f1cd7195))
+* disallow unknown json fields ([fcd6d5f](https://github.com/stfsy/go-api-kit/commit/fcd6d5ff955bc73ad8c0f2dc4ff9ff8b16d3f65d))
+* ensure struct field lookups are cached ([dac68b1](https://github.com/stfsy/go-api-kit/commit/dac68b15a1c47069584907554692cfe41b269703))
+
+
+### Bug Fixes
+
+* fix potential memory leak ([6a6fd3c](https://github.com/stfsy/go-api-kit/commit/6a6fd3c3496da5403ca14e4144a97eb052f2de91))
+
 ## [1.6.0](https://github.com/stfsy/go-api-kit/compare/v1.5.0...v1.6.0) (2025-09-13)
 
 
