@@ -13,6 +13,7 @@ import (
 	"github.com/stfsy/go-api-kit/server/handlers"
 	"github.com/stfsy/go-api-kit/server/middlewares"
 	"github.com/stfsy/go-api-kit/utils"
+	cors "github.com/stfsy/go-cors"
 	"github.com/urfave/negroni"
 )
 
@@ -20,6 +21,7 @@ var logger = utils.NewLogger("server")
 
 // ServerConfig configures the API server's endpoints, middleware, and startup behavior.
 type ServerConfig struct {
+	CorsConfig *cors.Options
 	// MuxCallback registers endpoints and custom middlewares to the HTTP mux.
 	MuxCallback func(*http.ServeMux)
 	// MiddlewareCallback customizes the Negroni middleware stack before the server starts.
@@ -50,7 +52,7 @@ func (s *Server) Start() error {
 
 	mux.HandleFunc("/", handlers.NotFoundHandler)
 
-	n := createMiddlewareHandler()
+	n := createMiddlewareHandler(s.serverConfig.CorsConfig)
 	if s.serverConfig.MiddlewareCallback != nil {
 		n = s.serverConfig.MiddlewareCallback(n)
 	}
@@ -106,16 +108,19 @@ func createServer(port string, n *negroni.Negroni) *http.Server {
 	}
 }
 
-func createMiddlewareHandler() *negroni.Negroni {
+func createMiddlewareHandler(corsConfig *cors.Options) *negroni.Negroni {
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
 	n.Use(middlewares.NewAccessLog())
-	n.Use(middlewares.NewRequireHTTP11Middleware())
-	n.Use(middlewares.NewRequireMaxBodyLengthMiddleware())
-	n.Use(middlewares.NewRequireContentLengthOrTransferEncodingMiddleware())
-	n.Use(middlewares.NewRequireContentTypeMiddleware("application/json"))
 	n.Use(middlewares.NewRespondWithSecurityHeadersMiddleware())
 	n.Use(middlewares.NewNoCacheHeadersMiddleware())
+	n.Use(middlewares.NewRequireHTTP11Middleware())
+	n.Use(middlewares.NewRequireMaxBodyLengthMiddleware())
+	if corsConfig != nil {
+		n.Use(cors.New(*corsConfig))
+	}
+	n.Use(middlewares.NewRequireContentLengthOrTransferEncodingMiddleware())
+	n.Use(middlewares.NewRequireContentTypeMiddleware("application/json"))
 	return n
 }
 

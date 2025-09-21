@@ -1,21 +1,23 @@
 module github.com/stfsy/go-api-kit
 
-go 1.23.1
+go 1.24.5
+
+toolchain go1.24.7
 
 require (
+	github.com/stfsy/go-cors v1.0.0
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/negroni v1.0.0
 )
 
 require (
-	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.10 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	golang.org/x/crypto v0.36.0 // indirect
-	golang.org/x/net v0.38.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
-	golang.org/x/text v0.23.0 // indirect
+	golang.org/x/crypto v0.42.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/text v0.29.0 // indirect
 )
 
 require (
