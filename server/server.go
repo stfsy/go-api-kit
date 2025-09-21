@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"runtime"
@@ -45,6 +45,10 @@ func NewServer(serverConfig *ServerConfig) *Server {
 }
 
 func (s *Server) Start() error {
+	if s == nil || s.serverConfig == nil {
+		return fmt.Errorf("server configuration is nil")
+	}
+
 	mux := http.NewServeMux()
 	if s.serverConfig.MuxCallback != nil {
 		s.serverConfig.MuxCallback(mux)
@@ -68,7 +72,7 @@ func (s *Server) Start() error {
 
 	ln, err := net.Listen("tcp", s.server.Addr)
 	if err != nil {
-		return fmt.Errorf("unable to bind to ip %w", err)
+		return fmt.Errorf("unable to bind to %s: %w", s.server.Addr, err)
 	}
 
 	if s.serverConfig.ListenCallback != nil {
@@ -78,8 +82,8 @@ func (s *Server) Start() error {
 	logger.Info(fmt.Sprintf("Listening on port %s", port))
 	err = s.server.Serve(ln)
 
-	if err != nil && err.Error() != "http: Server closed" {
-		return fmt.Errorf("unable to accept incoming connections %w", err)
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		return fmt.Errorf("unable to accept incoming connections: %w", err)
 	}
 
 	return nil
@@ -129,8 +133,13 @@ func (s *Server) Stop() {
 	ctx, cancel := context.WithTimeout(context.Background(), 9*time.Second)
 	defer cancel()
 
+	if s == nil || s.server == nil {
+		logger.Info("Server not running")
+		return
+	}
+
 	if err := s.server.Shutdown(ctx); err != nil {
-		log.Fatalf("Server shutdown error: %v", err)
+		logger.Info(fmt.Sprintf("Server shutdown error: %v", err))
 	} else {
 		logger.Info("Server stopped")
 	}
