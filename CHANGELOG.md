@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/stfsy/go-api-kit/compare/v1.7.0...v1.8.0) (2025-09-21)
+
+
+### Features
+
+* **server:** require cors config ([369aa0b](https://github.com/stfsy/go-api-kit/commit/369aa0b7e9ec1dcadd972040d491d1013fce8108))
+
 ## [1.7.0](https://github.com/stfsy/go-api-kit/compare/v1.6.0...v1.7.0) (2025-09-19)
 
 
