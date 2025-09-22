@@ -58,7 +58,7 @@ func (s *Server) Start() error {
 
 	mux.HandleFunc("/", handlers.NotFoundHandler)
 
-	n := createMiddlewareHandler(s.serverConfig)
+	n := createMiddlewareHandler(s.serverContext, s.serverConfig)
 	if s.serverConfig.MiddlewareCallback != nil {
 		n = s.serverConfig.MiddlewareCallback(n)
 	}
@@ -114,7 +114,7 @@ func createServer(port string, n *negroni.Negroni) *http.Server {
 	}
 }
 
-func createMiddlewareHandler(c *ServerConfig) *negroni.Negroni {
+func createMiddlewareHandler(_ctx context.Context, sc *ServerConfig) *negroni.Negroni {
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
 	n.Use(middlewares.NewAccessLog())
@@ -122,8 +122,8 @@ func createMiddlewareHandler(c *ServerConfig) *negroni.Negroni {
 	n.Use(middlewares.NewNoCacheHeadersMiddleware())
 	n.Use(middlewares.NewRequireHTTP11Middleware())
 	n.Use(middlewares.NewRequireMaxBodyLengthMiddleware())
-	if c.CorsConfig != nil {
-		n.Use(cors.New(*c.CorsConfig))
+	if sc.CorsConfig != nil {
+		n.Use(cors.New(*sc.CorsConfig))
 	}
 	n.Use(middlewares.NewRequireContentLengthOrTransferEncodingMiddleware())
 	n.Use(middlewares.NewRequireContentTypeMiddleware("application/json"))
