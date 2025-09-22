@@ -33,14 +33,16 @@ type ServerConfig struct {
 }
 
 type Server struct {
-	serverConfig *ServerConfig
-	server       *http.Server
+	serverConfig  *ServerConfig
+	server        *http.Server
+	serverContext context.Context
 }
 
 func NewServer(serverConfig *ServerConfig) *Server {
 	return &Server{
-		serverConfig: serverConfig,
-		server:       nil,
+		serverConfig:  serverConfig,
+		server:        nil,
+		serverContext: context.Background(),
 	}
 }
 
@@ -56,7 +58,7 @@ func (s *Server) Start() error {
 
 	mux.HandleFunc("/", handlers.NotFoundHandler)
 
-	n := createMiddlewareHandler(s.serverConfig.CorsConfig)
+	n := createMiddlewareHandler(s.serverConfig)
 	if s.serverConfig.MiddlewareCallback != nil {
 		n = s.serverConfig.MiddlewareCallback(n)
 	}
@@ -112,7 +114,7 @@ func createServer(port string, n *negroni.Negroni) *http.Server {
 	}
 }
 
-func createMiddlewareHandler(corsConfig *cors.Options) *negroni.Negroni {
+func createMiddlewareHandler(c *ServerConfig) *negroni.Negroni {
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
 	n.Use(middlewares.NewAccessLog())
@@ -120,8 +122,8 @@ func createMiddlewareHandler(corsConfig *cors.Options) *negroni.Negroni {
 	n.Use(middlewares.NewNoCacheHeadersMiddleware())
 	n.Use(middlewares.NewRequireHTTP11Middleware())
 	n.Use(middlewares.NewRequireMaxBodyLengthMiddleware())
-	if corsConfig != nil {
-		n.Use(cors.New(*corsConfig))
+	if c.CorsConfig != nil {
+		n.Use(cors.New(*c.CorsConfig))
 	}
 	n.Use(middlewares.NewRequireContentLengthOrTransferEncodingMiddleware())
 	n.Use(middlewares.NewRequireContentTypeMiddleware("application/json"))
