@@ -322,6 +322,28 @@ handlers.SendUnauthorized(w, handlers.ErrorDetails{
 // Without details (generic error):
 handlers.SendInternalServerError(w, nil)
 ```
+
+#### Error detail helpers
+
+The package provides small helpers to construct the `handlers.ErrorDetails` map used by the error sender functions. These helpers make error responses concise and consistent.
+
+Example:
+
+```go
+import "github.com/stfsy/go-api-kit/server/handlers"
+
+// Create a field-level error map and send with an error responder
+ed := handlers.CreateErrorDetail("zip_code", "must not be undefined")
+handlers.SendBadRequest(w, ed)
+
+// Convenience helper for the common "must not be undefined" message
+handlers.SendBadRequest(w, handlers.CreateMustNotBeUndefinedErrorDetail("email"))
+```
+
+Notes:
+- `CreateErrorDetail(key, value string)` returns a `handlers.ErrorDetails` value where the inner map contains the `"message"` key.
+- `CreateMustNotBeUndefinedErrorDetail(field string)` is a small helper that sets the message to `"must not be undefined"`.
+
 [Source](server/handlers/response-error-sender.go)
 
 #### Available error response functions:
