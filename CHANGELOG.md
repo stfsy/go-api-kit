@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.0](https://github.com/stfsy/go-api-kit/compare/v1.8.0...v1.9.0) (2025-09-23)
+
+
+### Features
+
+* add functions to get safe header values ([26b9663](https://github.com/stfsy/go-api-kit/commit/26b96634bba48042660c24c9b1845ef00be61a19))
+* add helper to create error details ([57855c4](https://github.com/stfsy/go-api-kit/commit/57855c4f9b853141658755f608c55958e3e413db))
+
 ## [1.8.0](https://github.com/stfsy/go-api-kit/compare/v1.7.0...v1.8.0) (2025-09-21)
 
 
