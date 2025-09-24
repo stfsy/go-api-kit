@@ -11,7 +11,12 @@ type HttpError struct {
 	Details any    `json:"details,omitempty"`
 }
 
-type ErrorDetails map[string]map[string]string
+type ErrorDetails map[string]ErrorDetail
+
+type ErrorDetail struct {
+	Message string `json:"message"`
+	Code    string `json:"code,omitempty"`
+}
 
 func sendError(rw http.ResponseWriter, httpError HttpError) {
 	payload, _ := json.Marshal(httpError)

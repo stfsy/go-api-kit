@@ -9,7 +9,7 @@ import (
 )
 
 type testPayload struct {
-	Name string `json:"name"`
+	Name string `json:"name" validate:"required"`
 }
 
 func TestValidatingHandler_Success(t *testing.T) {
@@ -35,6 +35,43 @@ func TestValidatingHandler_Success(t *testing.T) {
 
 	if !handlerCalled {
 		t.Error("handler was not called on valid payload")
+	}
+}
+
+func TestValidatingHandler_ValidationFail(t *testing.T) {
+	payload := testPayload{}
+	body, _ := json.Marshal(payload)
+	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	handlerCalled := false
+	handler := func(w http.ResponseWriter, r *http.Request, p *testPayload) {
+		handlerCalled = true
+		if p == nil || p.Name != payload.Name {
+			t.Errorf("expected name %s, got %v", payload.Name, p)
+		}
+	}
+
+	ValidatingHandler[testPayload](handler)(w, req)
+
+	if w.Result().StatusCode != http.StatusBadRequest {
+		t.Errorf("expected status %d, got %d", http.StatusOK, w.Result().StatusCode)
+	}
+
+	var resp HttpError
+	err := json.NewDecoder(w.Result().Body).Decode(&resp)
+	if err != nil {
+		t.Errorf("error decoding response body: %v", err)
+	}
+
+	details := resp.Details.(map[string]any)
+	if details["name"] == nil {
+		t.Error("expected validation error for 'name' field")
+	}
+
+	if handlerCalled {
+		t.Error("handler shouldn't have been called on invalid payload")
 	}
 }
 

@@ -2,7 +2,9 @@ package handlers
 
 func CreateErrorDetail(key, value string) ErrorDetails {
 	return ErrorDetails{
-		key: map[string]string{"message": value},
+		key: ErrorDetail{
+			Message: value,
+		},
 	}
 }
 

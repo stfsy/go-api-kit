@@ -7,8 +7,6 @@ import (
 	"github.com/stfsy/go-api-kit/server/handlers/validation"
 )
 
-var EMPTY_MAP = make(map[string]map[string]string)
-
 func ValidatingHandler[T any](handler func(http.ResponseWriter, *http.Request, *T)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -18,7 +16,7 @@ func ValidatingHandler[T any](handler func(http.ResponseWriter, *http.Request, *
 			decoder.DisallowUnknownFields()
 
 			if err := decoder.Decode(&body); err != nil {
-				SendBadRequest(w, EMPTY_MAP)
+				SendBadRequest(w, nil)
 				return
 			}
 
@@ -28,10 +26,7 @@ func ValidatingHandler[T any](handler func(http.ResponseWriter, *http.Request, *
 				errorDetails := make(ErrorDetails, len(errors))
 
 				for field, errDetail := range errors {
-					fieldErrors := make(map[string]string, 1)
-					fieldErrors["Message"] = errDetail.Message
-					fieldErrors["Validator"] = errDetail.Validator
-					errorDetails[field] = fieldErrors
+					errorDetails[field] = ErrorDetail{Message: errDetail.Message}
 				}
 				SendValidationError(w, errorDetails)
 				return
