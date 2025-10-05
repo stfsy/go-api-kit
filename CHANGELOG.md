@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/stfsy/go-api-kit/compare/v1.9.0...v1.10.0) (2025-09-24)
+
+
+### Features
+
+* error details have lowercase keys ([a64299d](https://github.com/stfsy/go-api-kit/commit/a64299dd08226d826acb459dbeb240634a495461))
+
 ## [1.9.0](https://github.com/stfsy/go-api-kit/compare/v1.8.0...v1.9.0) (2025-09-23)
 
 
