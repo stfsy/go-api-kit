@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/stfsy/go-api-kit/compare/v1.10.0...v1.11.0) (2025-10-05)
+
+
+### Features
+
+* decode delete body too if content-length &gt; 0 ([2ccc70d](https://github.com/stfsy/go-api-kit/commit/2ccc70d6d9a535b7055c34a0bc2dfe60a2931ac0))
+
 ## [1.10.0](https://github.com/stfsy/go-api-kit/compare/v1.9.0...v1.10.0) (2025-09-24)
 
 
