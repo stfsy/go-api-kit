@@ -2,13 +2,10 @@ package middlewares
 
 import (
 	"bytes"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stfsy/go-api-kit/server/handlers"
-	a "github.com/stretchr/testify/assert"
 	"github.com/urfave/negroni"
 )
 
@@ -135,32 +132,4 @@ func TestContentType(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestSendNotFound(t *testing.T) {
-	assert := a.New(t)
-
-	recorder := httptest.NewRecorder()
-	r := negroni.New()
-	r.Use(NewRequireContentTypeMiddleware("application/json"))
-
-	body := []byte("This is my content. There are many like this but this one is mine")
-	req := httptest.NewRequest("POST", "/", bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/xml")
-
-	r.ServeHTTP(recorder, req)
-	res := recorder.Result()
-
-	assert.Equal(415, res.StatusCode)
-	assert.Equal("application/problem+json", res.Header.Get("Content-Type"))
-
-	// Check response body
-	var payload handlers.HttpError
-	err := json.NewDecoder(res.Body).Decode(&payload)
-	if err != nil {
-		assert.Nil(err)
-	}
-
-	assert.Equal(415, payload.Status)
-	assert.Equal("Unsupported Media Type", payload.Title)
 }

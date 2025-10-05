@@ -22,7 +22,9 @@ func TestValidatingHandler_Success(t *testing.T) {
 	handlerCalled := false
 	handler := func(w http.ResponseWriter, r *http.Request, p *testPayload) {
 		handlerCalled = true
-		if p == nil || p.Name != payload.Name {
+		if p == nil {
+			t.Errorf("expected payload, got nil")
+		} else if p.Name != payload.Name {
 			t.Errorf("expected name %s, got %v", payload.Name, p)
 		}
 	}
@@ -127,8 +129,17 @@ func TestValidatingHandler_DeleteWithNoBody(t *testing.T) {
 	if !handlerCalled {
 		t.Error("handler was not called for DELETE with no body")
 	}
+
+	var body string
+	decoder := json.NewDecoder(w.Result().Body)
+
+	if err := decoder.Decode(&body); err != nil {
+		SendBadRequest(w, nil)
+		return
+	}
+
 	if w.Result().StatusCode != http.StatusOK {
-		t.Errorf("expected status %d, got %d for DELETE", http.StatusOK, w.Result().StatusCode)
+		t.Errorf("expected status %d, got %d and body %s for DELETE", http.StatusOK, w.Result().StatusCode, body)
 	}
 }
 

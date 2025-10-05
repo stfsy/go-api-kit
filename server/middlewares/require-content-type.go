@@ -51,8 +51,11 @@ func (m *RequireContentTypeMiddleware) ServeHTTP(rw http.ResponseWriter, r *http
 
 func isWriteRequest(r *http.Request) bool {
 	switch r.Method {
-	case http.MethodPatch, http.MethodPost, http.MethodPut, http.MethodDelete:
+	case http.MethodPatch, http.MethodPost, http.MethodPut:
 		return true
+	case http.MethodDelete:
+		// DELETE may have a body, so treat it as a write request if it does.
+		return r.ContentLength != 0
 	default:
 		return false
 	}

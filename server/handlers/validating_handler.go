@@ -9,8 +9,10 @@ import (
 
 func ValidatingHandler[T any](handler func(http.ResponseWriter, *http.Request, *T)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodPost, http.MethodPut, http.MethodPatch:
+		method := r.Method
+		contentLength := r.ContentLength
+		// For methods that typically don't have a body, just call the handler with Nil
+		if (method == http.MethodPost || method == http.MethodPut || method == http.MethodPatch || method == http.MethodDelete) && contentLength > 0 {
 			var body T
 			decoder := json.NewDecoder(r.Body)
 			decoder.DisallowUnknownFields()
@@ -33,11 +35,10 @@ func ValidatingHandler[T any](handler func(http.ResponseWriter, *http.Request, *
 			}
 
 			handler(w, r, &body)
+			return
 			// Optionally add validation logic here
-
-		default:
-			// For methods that typically don't have a body, just call the handler with Nil
-			handler(w, r, nil)
 		}
+
+		handler(w, r, nil)
 	}
 }
