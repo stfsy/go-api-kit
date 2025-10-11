@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.12.0](https://github.com/stfsy/go-api-kit/compare/v1.11.0...v1.12.0) (2025-10-11)
+
+
+### Features
+
+* use mime.ParseMediaType to parse content type ([327c236](https://github.com/stfsy/go-api-kit/commit/327c236e498f2d057837eb8c1a8aa61f6ce58008))
+
+
+### Bug Fixes
+
+* fix body detection for http delete ([bad05bb](https://github.com/stfsy/go-api-kit/commit/bad05bb0c80c9a9c54da890648b6804660a020f2))
+* if content-length is -1 for delete then check for transfer encoding header ([d120255](https://github.com/stfsy/go-api-kit/commit/d12025557b506431a11bdc7d7476f4243120a4c4))
+
 ## [1.11.0](https://github.com/stfsy/go-api-kit/compare/v1.10.0...v1.11.0) (2025-10-05)
 
 
