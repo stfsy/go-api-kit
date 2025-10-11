@@ -15,10 +15,12 @@ func TestContentType(t *testing.T) {
 	var tests = []struct {
 		name                string
 		inputValue          string
+		transferEncoding    string
 		allowedContentTypes string
 		want                int
 		method              string
 		body                string
+		forceChunked        bool
 	}{
 		{
 			name:                "should accept requests with a matching content type",
@@ -109,6 +111,44 @@ func TestContentType(t *testing.T) {
 			method:              http.MethodPost,
 			body:                "",
 		},
+		{
+			name:                "POST chunked request without Content-Type should be rejected",
+			inputValue:          "",
+			transferEncoding:    "chunked",
+			allowedContentTypes: "application/json",
+			want:                http.StatusUnsupportedMediaType,
+			method:              http.MethodPost,
+			body:                "{}",
+			forceChunked:        true,
+		},
+		{
+			name:                "POST chunked request with allowed Content-Type should be accepted",
+			inputValue:          "application/json",
+			transferEncoding:    "chunked",
+			allowedContentTypes: "application/json",
+			want:                http.StatusOK,
+			method:              http.MethodPost,
+			body:                "{}",
+			forceChunked:        true,
+		},
+		{
+			name:                "DELETE without body should skip enforcement",
+			inputValue:          "",
+			allowedContentTypes: "application/json",
+			want:                http.StatusOK,
+			method:              http.MethodDelete,
+			body:                "",
+		},
+		{
+			name:                "DELETE chunked with allowed content-type should be accepted",
+			inputValue:          "application/json",
+			transferEncoding:    "chunked",
+			allowedContentTypes: "application/json",
+			want:                http.StatusOK,
+			method:              http.MethodDelete,
+			body:                "{}",
+			forceChunked:        true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -121,8 +161,18 @@ func TestContentType(t *testing.T) {
 			r := negroni.New()
 			r.Use(NewRequireContentTypeMiddleware(tt.allowedContentTypes))
 
+			// Create request body and optionally emulate chunked by setting ContentLength=-1
 			req := httptest.NewRequest(tt.method, "/", bytes.NewReader([]byte(tt.body)))
-			req.Header.Set("Content-Type", tt.inputValue)
+			if tt.inputValue != "" {
+				req.Header.Set("Content-Type", tt.inputValue)
+			}
+			if tt.transferEncoding != "" {
+				req.Header.Set("Transfer-Encoding", tt.transferEncoding)
+			}
+			if tt.forceChunked {
+				// Emulate chunked: ContentLength -1 and Transfer-Encoding header set
+				req.ContentLength = -1
+			}
 
 			r.ServeHTTP(recorder, req)
 			res := recorder.Result()

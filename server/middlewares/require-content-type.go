@@ -55,7 +55,15 @@ func isWriteRequest(r *http.Request) bool {
 		return true
 	case http.MethodDelete:
 		// DELETE may have a body, so treat it as a write request if it does.
-		return r.ContentLength != 0
+		// Consider explicit Content-Length > 0 or chunked transfer encoding.
+		if r.ContentLength > 0 {
+			return true
+		}
+		te := strings.ToLower(strings.TrimSpace(r.Header.Get("Transfer-Encoding")))
+		if strings.Contains(te, "chunked") {
+			return true
+		}
+		return false
 	default:
 		return false
 	}
