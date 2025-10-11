@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.13.0](https://github.com/stfsy/go-api-kit/compare/v1.12.0...v1.13.0) (2025-10-11)
+
+
+### Features
+
+* add csrf protection ([3268add](https://github.com/stfsy/go-api-kit/commit/3268add9e9965e15ba3a8f8ea57ba8797999f0ec))
+* enable csrf protection ([d319ab5](https://github.com/stfsy/go-api-kit/commit/d319ab59c672f65efe372a02914b9a1c2a8caee6))
+
 ## [1.12.0](https://github.com/stfsy/go-api-kit/compare/v1.11.0...v1.12.0) (2025-10-11)
 
 
