@@ -26,7 +26,7 @@ func startTestServer(_t *testing.T) func() {
 					return
 				}
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("ok"))
+				_, _ = w.Write([]byte("ok"))
 			})
 		},
 	})
@@ -53,7 +53,7 @@ func TestGET_ReturnsOK(t *testing.T) {
 	resp, err := http.Get("http://localhost:8080/test")
 	a := a.New(t)
 	a.NoError(err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	b, _ := io.ReadAll(resp.Body)
 	a.Equal(http.StatusOK, resp.StatusCode)
 	a.Equal("ok", string(b))
@@ -66,7 +66,7 @@ func TestSecurityHeaders_AreSet(t *testing.T) {
 	resp, err := http.Get("http://localhost:8080/test")
 	a := a.New(t)
 	a.NoError(err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Check a few representative security headers
 	a.Equal("nosniff", resp.Header.Get("X-Content-Type-Options"))
@@ -81,7 +81,7 @@ func TestPOST_WithoutLengthOrTransferEncoding_Returns411(t *testing.T) {
 	resp, err := http.DefaultClient.Do(req)
 	a := a.New(t)
 	a.NoError(err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	a.Equal(http.StatusLengthRequired, resp.StatusCode)
 }
 
@@ -95,7 +95,7 @@ func TestPOST_WithBodyButNoContentType_Returns415(t *testing.T) {
 	resp, err := http.DefaultClient.Do(req)
 	a := a.New(t)
 	a.NoError(err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	a.Equal(http.StatusUnsupportedMediaType, resp.StatusCode)
 }
 
@@ -106,7 +106,7 @@ func TestCacheHeadersSet(t *testing.T) {
 	resp, err := http.Get("http://localhost:8080/test")
 	assert := a.New(t)
 	assert.NoError(err)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// check a subset of no-cache headers
 	assert.Equal("no-store, no-cache, must-revalidate, proxy-revalidate", resp.Header.Get("Cache-Control"))
@@ -122,7 +122,7 @@ func TestRequireHTTP11RejectsHTTP10(t *testing.T) {
 	conn, err := net.Dial("tcp", "localhost:8080")
 	assert := a.New(t)
 	assert.NoError(err)
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	req := "GET /test HTTP/1.0\r\nHost: localhost\r\n\r\n"
 	_, err = conn.Write([]byte(req))
@@ -156,5 +156,5 @@ func TestMaxBodyLengthEnforced(t *testing.T) {
 	assert := a.New(t)
 	assert.NoError(err)
 	assert.Equal(http.StatusRequestEntityTooLarge, resp.StatusCode)
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 }
