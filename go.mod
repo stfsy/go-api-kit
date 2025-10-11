@@ -1,8 +1,8 @@
 module github.com/stfsy/go-api-kit
 
-go 1.24.5
+go 1.25
 
-toolchain go1.24.7
+toolchain go1.25.1
 
 require (
 	github.com/stfsy/go-cors v1.0.0
