@@ -77,7 +77,7 @@ func (s *Server) Start() error {
 		port = s.serverConfig.PortOverride
 	}
 
-	s.server = createServer(port, n)
+	s.server = createServer(port, csrfProtection.Handler(n))
 
 	ln, err := net.Listen("tcp", s.server.Addr)
 	if err != nil {
@@ -102,7 +102,7 @@ func createCrossOritinProtection() *http.CrossOriginProtection {
 	return &http.CrossOriginProtection{}
 }
 
-func createServer(port string, n *negroni.Negroni) *http.Server {
+func createServer(port string, h http.Handler) *http.Server {
 	c := config.Get()
 
 	if port == "" {
@@ -118,7 +118,7 @@ func createServer(port string, n *negroni.Negroni) *http.Server {
 
 	return &http.Server{
 		Addr:         addr,
-		Handler:      n,
+		Handler:      h,
 		ReadTimeout:  time.Duration(c.ReadTimeout) * time.Second,
 		WriteTimeout: time.Duration(c.WriteTimeout) * time.Second,
 		IdleTimeout:  time.Duration(c.IdleTimeout) * time.Second,
