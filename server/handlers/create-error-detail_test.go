@@ -9,7 +9,7 @@ import (
 func TestCreateErrorDetail_ReturnsCorrectStructure(t *testing.T) {
 	assert := a.New(t)
 
-	ed := CreateErrorDetail("zip_code", "must match pattern")
+	ed := CreateErrorDetails("zip_code", "must match pattern")
 
 	// top-level key
 	assert.Len(ed, 1)
@@ -32,7 +32,7 @@ func TestCreateMustNotBeUndefinedDetail_Message(t *testing.T) {
 func TestCreateErrorDetail_AllowsEmptyKey(t *testing.T) {
 	assert := a.New(t)
 
-	ed := CreateErrorDetail("", "value")
+	ed := CreateErrorDetails("", "value")
 	inner, ok := ed[""]
 	assert.True(ok, "empty string key should be present in returned ErrorDetails")
 	assert.Equal("value", inner.Message)
@@ -41,8 +41,8 @@ func TestCreateErrorDetail_AllowsEmptyKey(t *testing.T) {
 func TestCreateErrorDetail_ReturnsIndependentMaps(t *testing.T) {
 	assert := a.New(t)
 
-	a1 := CreateErrorDetail("k", "v1")
-	a2 := CreateErrorDetail("k", "v2")
+	a1 := CreateErrorDetails("k", "v1")
+	a2 := CreateErrorDetails("k", "v2")
 
 	// mutate first result
 	ed1 := a1["k"]

@@ -67,7 +67,7 @@ func GenericDetailsTest(t *testing.T, fn func(rw http.ResponseWriter, details Er
 		{
 			title,
 			status,
-			CreateErrorDetail("api_keys", "API key is missing"),
+			CreateErrorDetails("api_keys", "API key is missing"),
 		},
 	}
 

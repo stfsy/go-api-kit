@@ -1,6 +1,6 @@
 package handlers
 
-func CreateErrorDetail(key, value string) ErrorDetails {
+func CreateErrorDetails(key, value string) ErrorDetails {
 	return ErrorDetails{
 		key: ErrorDetail{
 			Message: value,
@@ -9,5 +9,5 @@ func CreateErrorDetail(key, value string) ErrorDetails {
 }
 
 func CreateMustNotBeUndefinedErrorDetail(field string) ErrorDetails {
-	return CreateErrorDetail(field, "must not be undefined")
+	return CreateErrorDetails(field, "must not be undefined")
 }
