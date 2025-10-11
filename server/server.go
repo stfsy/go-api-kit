@@ -22,6 +22,8 @@ var logger = utils.NewLogger("server")
 // ServerConfig configures the API server's endpoints, middleware, and startup behavior.
 type ServerConfig struct {
 	CorsConfig *cors.Options
+	// CrossOriginProtection configures CSRF protection.
+	CrossOriginProtection *http.CrossOriginProtection
 	// MuxCallback registers endpoints and custom middlewares to the HTTP mux.
 	MuxCallback func(*http.ServeMux)
 	// MiddlewareCallback customizes the Negroni middleware stack before the server starts.
@@ -64,6 +66,11 @@ func (s *Server) Start() error {
 	}
 	n.UseHandler(mux)
 
+	csrfProtection := s.serverConfig.CrossOriginProtection
+	if csrfProtection == nil {
+		csrfProtection = createCrossOritinProtection()
+	}
+
 	configuration := config.Get()
 	port := configuration.Port
 	if s.serverConfig.PortOverride != "" {
@@ -89,6 +96,10 @@ func (s *Server) Start() error {
 	}
 
 	return nil
+}
+
+func createCrossOritinProtection() *http.CrossOriginProtection {
+	return &http.CrossOriginProtection{}
 }
 
 func createServer(port string, n *negroni.Negroni) *http.Server {
