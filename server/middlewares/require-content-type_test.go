@@ -149,6 +149,30 @@ func TestContentType(t *testing.T) {
 			body:                "{}",
 			forceChunked:        true,
 		},
+		{
+			name:                "allowed content type with params in constructor",
+			inputValue:          "application/json",
+			allowedContentTypes: "application/json; charset=utf-8",
+			want:                http.StatusOK,
+			method:              http.MethodPost,
+			body:                "{}",
+		},
+		{
+			name:                "header uppercase media type accepted",
+			inputValue:          "Application/JSON; charset=UTF-8",
+			allowedContentTypes: "application/json",
+			want:                http.StatusOK,
+			method:              http.MethodPost,
+			body:                "{}",
+		},
+		{
+			name:                "malformed content-type returns 415",
+			inputValue:          "not-a-media-type;;",
+			allowedContentTypes: "application/json",
+			want:                http.StatusUnsupportedMediaType,
+			method:              http.MethodPost,
+			body:                "{}",
+		},
 	}
 
 	for _, tt := range tests {

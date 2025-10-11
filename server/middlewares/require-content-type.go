@@ -3,6 +3,7 @@ package middlewares
 // adapted from https://raw.githubusercontent.com/go-chi/chi/master/middleware/content_type.go
 
 import (
+	"mime"
 	"net/http"
 	"strings"
 
@@ -14,8 +15,18 @@ type RequireContentTypeMiddleware struct {
 }
 
 func NewRequireContentTypeMiddleware(allowedContentType string) *RequireContentTypeMiddleware {
+	// Normalize allowed content type: parse and keep the media type only.
+	allowed := strings.ToLower(strings.TrimSpace(allowedContentType))
+	if i := strings.Index(allowed, ";"); i > -1 {
+		allowed = allowed[0:i]
+	}
+	// In case caller passed parameters, attempt to parse, else keep the raw media type.
+	if mt, _, err := mime.ParseMediaType(allowed); err == nil {
+		allowed = strings.ToLower(strings.TrimSpace(mt))
+	}
+
 	return &RequireContentTypeMiddleware{
-		AllowedContentType: allowedContentType,
+		AllowedContentType: allowed,
 	}
 }
 
@@ -29,19 +40,21 @@ func (m *RequireContentTypeMiddleware) ServeHTTP(rw http.ResponseWriter, r *http
 	}
 
 	// For write requests (POST/PUT/PATCH and DELETE with body), require a valid Content-Type.
-	// This includes chunked requests where ContentLength may be -1. Use the request headers directly.
-	s := strings.ToLower(strings.TrimSpace(r.Header.Get("Content-Type")))
-	if i := strings.Index(s, ";"); i > -1 {
-		s = s[0:i]
-	}
-
-	// If no Content-Type provided for a write request, reject it.
-	if s == "" {
+	// Parse the Content-Type header using mime.ParseMediaType to canonicalize comparisons.
+	ctHeader := strings.TrimSpace(r.Header.Get("Content-Type"))
+	if ctHeader == "" {
 		handlers.SendUnsupportedMediaType(rw, nil)
 		return
 	}
 
-	if s == m.AllowedContentType {
+	mediaType, _, err := mime.ParseMediaType(ctHeader)
+	if err != nil {
+		// If parsing fails, conservatively reject the request.
+		handlers.SendUnsupportedMediaType(rw, nil)
+		return
+	}
+
+	if strings.ToLower(mediaType) == m.AllowedContentType {
 		next.ServeHTTP(rw, r)
 		return
 	}
