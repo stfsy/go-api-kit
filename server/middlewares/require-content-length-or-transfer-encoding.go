@@ -18,8 +18,8 @@ func (m *RequireContentLengthOrTransferEncodingMiddleware) ServeHTTP(rw http.Res
 	if isHttp11 {
 		switch r.Method {
 		case http.MethodPost, http.MethodPatch, http.MethodPut:
-			// detect presence of the Content-Length header (including zero)
-			hasContentLength := r.Header.Get("Content-Length") != ""
+			// Detect presence of a Content-Length header or Transfer-Encoding.
+			hasContentLength := r.ContentLength > 0
 			hasTransferEncoding := len(r.TransferEncoding) > 0
 			if !hasContentLength && !hasTransferEncoding {
 				handlers.SendLengthRequired(rw, nil)
