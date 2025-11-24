@@ -5,7 +5,7 @@ go 1.25
 toolchain go1.25.1
 
 require (
-	github.com/stfsy/go-cors v1.0.0
+	github.com/stfsy/go-cors v1.1.0
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/negroni v1.0.0
 )
