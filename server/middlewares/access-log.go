@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/urfave/negroni"
+	"github.com/urfave/negroni/v3"
 )
 
 // NewLogger returns a new Logger instance

@@ -14,7 +14,7 @@ import (
 	"github.com/stfsy/go-api-kit/server/middlewares"
 	"github.com/stfsy/go-api-kit/utils"
 	cors "github.com/stfsy/go-cors"
-	"github.com/urfave/negroni"
+	"github.com/urfave/negroni/v3"
 )
 
 var logger = utils.NewLogger("server")

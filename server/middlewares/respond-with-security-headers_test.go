@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/urfave/negroni"
+	"github.com/urfave/negroni/v3"
 )
 
 func TestSecurityHeaders(t *testing.T) {

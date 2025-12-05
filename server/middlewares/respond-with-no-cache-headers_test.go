@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	a "github.com/stretchr/testify/assert"
-	"github.com/urfave/negroni"
+	"github.com/urfave/negroni/v3"
 )
 
 func TestNoCacheResponseHeaders(t *testing.T) {

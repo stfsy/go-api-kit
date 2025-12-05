@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/urfave/negroni"
+	"github.com/urfave/negroni/v3"
 )
 
 func TestRequireMaxBodyLengthMiddleware(t *testing.T) {

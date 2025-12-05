@@ -36,7 +36,7 @@ import (
 	"syscall"
 
 	"github.com/stfsy/go-api-kit/server"
-	"github.com/urfave/negroni"
+	"github.com/urfave/negroni/v3"
 )
 
 var s *server.Server
@@ -133,7 +133,7 @@ Logs each incoming request to give insights about usage and response times.
 ```go
 import (
 	"net/http"
-	"github.com/urfave/negroni"
+	"github.com/urfave/negroni/v3"
 	"github.com/stfsy/go-api-kit/server/middlewares"
 )
 
@@ -156,7 +156,7 @@ Validates the incoming content type, if the request method implies a state chang
 ```go
 import (
 	"net/http"
-	"github.com/urfave/negroni"
+	"github.com/urfave/negroni/v3"
 	"github.com/stfsy/go-api-kit/server/middlewares"
 )
 
@@ -179,7 +179,7 @@ Limits the maximum allowed size of the request body.
 ```go
 import (
 	"net/http"
-	"github.com/urfave/negroni"
+	"github.com/urfave/negroni/v3"
 	"github.com/stfsy/go-api-kit/server/middlewares"
 )
 
@@ -202,7 +202,7 @@ Adds additional security headers to the response to prevent common attacks and p
 ```go
 import (
 	"net/http"
-	"github.com/urfave/negroni"
+	"github.com/urfave/negroni/v3"
 	"github.com/stfsy/go-api-kit/server/middlewares"
 )
 
@@ -225,7 +225,7 @@ Instructs proxy servers between the client and the API to not cache responses.
 ```go
 import (
 	"net/http"
-	"github.com/urfave/negroni"
+	"github.com/urfave/negroni/v3"
 	"github.com/stfsy/go-api-kit/server/middlewares"
 )
 
