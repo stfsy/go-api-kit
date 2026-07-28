@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.1](https://github.com/stfsy/go-api-kit/compare/v1.13.0...v1.13.1) (2026-07-28)
+
+
+### Bug Fixes
+
+* **validation:** use reflect.Pointer to satisfy govet inline check ([169184b](https://github.com/stfsy/go-api-kit/commit/169184ba90bf288d630755cab11b442c6de27f3b))
+
 ## [1.13.0](https://github.com/stfsy/go-api-kit/compare/v1.12.0...v1.13.0) (2025-12-05)
 
 
