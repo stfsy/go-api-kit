@@ -20,7 +20,7 @@ type FieldErrorDetail struct {
 func ValidateStruct(s interface{}) map[string]FieldErrorDetail {
 	errors := make(map[string]FieldErrorDetail)
 	t := reflect.TypeOf(s)
-	if t.Kind() == reflect.Ptr {
+	if t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 
