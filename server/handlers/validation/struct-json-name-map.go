@@ -52,7 +52,7 @@ func buildJSONFieldMap(t reflect.Type, parentKey, parentTag string) map[string]s
 		}
 		m[key] = tagPath
 		ft := f.Type
-		if ft.Kind() == reflect.Ptr {
+		if ft.Kind() == reflect.Pointer {
 			ft = ft.Elem()
 		}
 		if ft.Kind() == reflect.Struct && !f.Anonymous && ft.Name() != "Time" {
