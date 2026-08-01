@@ -47,6 +47,13 @@ func (m *RequireContentTypeMiddleware) ServeHTTP(rw http.ResponseWriter, r *http
 		return
 	}
 
+	// Fast path: skip the allocating mime.ParseMediaType call when there are no
+	// parameters to strip and the header already matches the allowed media type.
+	if !strings.Contains(ctHeader, ";") && strings.ToLower(ctHeader) == m.AllowedContentType {
+		next.ServeHTTP(rw, r)
+		return
+	}
+
 	mediaType, _, err := mime.ParseMediaType(ctHeader)
 	if err != nil {
 		// If parsing fails, conservatively reject the request.

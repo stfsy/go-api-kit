@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -18,10 +19,15 @@ type ErrorDetail struct {
 	Code    string `json:"code,omitempty"`
 }
 
+// sendError streams httpError as JSON directly to rw. HttpError's fields are all
+// plain strings/ints/maps, so encoding cannot fail once the status has been written.
 func sendError(rw http.ResponseWriter, httpError HttpError) {
-	payload, _ := json.Marshal(httpError)
 	rw.Header().Set(HeaderContentType, ContentTypeProblemJson)
-	_ = send(rw, payload, httpError.Status)
+	rw.WriteHeader(httpError.Status)
+	err := json.NewEncoder(rw).Encode(httpError)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Unable to encode error response as JSON %s", err.Error()))
+	}
 }
 
 // 400 Bad Request

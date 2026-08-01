@@ -35,13 +35,13 @@ func SendJson(rw http.ResponseWriter, response []byte) {
 	_ = send(rw, response, http.StatusOK)
 }
 
+// SendStructAsJson streams v as JSON directly to rw, avoiding the extra buffer
+// allocation and copy that json.Marshal would incur for the response body.
 func SendStructAsJson(rw http.ResponseWriter, v interface{}) {
 	rw.Header().Set(HeaderContentType, ContentTypeJson)
-	data, err := json.Marshal(v)
+	err := json.NewEncoder(rw).Encode(v)
 	if err != nil {
-		logger.Error(fmt.Sprintf("Unable to marshal response to JSON %s", err.Error()))
+		logger.Error(fmt.Sprintf("Unable to encode response as JSON %s", err.Error()))
 		SendInternalServerError(rw, nil)
-		return
 	}
-	SendJson(rw, data)
 }

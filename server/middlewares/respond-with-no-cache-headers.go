@@ -32,9 +32,11 @@ func NewNoCacheHeadersMiddleware() *NoCacheHeadersMiddleware {
 //	Pragma: no-cache (for HTTP/1.0 proxies/clients)
 func (m *NoCacheHeadersMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 
-	// Set our NoCache headers
+	// Set our NoCache headers. Keys are precomputed in canonical form, so write
+	// directly to skip Set's canonicalization.
+	headers := rw.Header()
 	for k, v := range noCacheHeaders {
-		rw.Header().Set(k, v)
+		headers[k] = []string{v}
 	}
 
 	next.ServeHTTP(rw, r)

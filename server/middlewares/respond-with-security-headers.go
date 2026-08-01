@@ -31,7 +31,8 @@ func NewRespondWithSecurityHeadersMiddleware() *SecurityHeadersMiddleware {
 func (m *SecurityHeadersMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	headers := rw.Header()
 	for k, v := range securityHeadersMap {
-		headers.Set(k, v)
+		// Use the canonical header key directly to avoid the extra validation path in Header.Set.
+		headers[http.CanonicalHeaderKey(k)] = []string{v}
 	}
 	next(rw, r)
 }
