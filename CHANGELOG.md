@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0](https://github.com/stfsy/go-api-kit/compare/v1.13.1...v1.14.0) (2026-08-03)
+
+
+### Features
+
+* implement performance improvements ([e0c8688](https://github.com/stfsy/go-api-kit/commit/e0c8688df0af3ef01e85dab1ceabfa748b4a5fdc))
+
 ## [1.13.1](https://github.com/stfsy/go-api-kit/compare/v1.13.0...v1.13.1) (2026-07-28)
 
 
