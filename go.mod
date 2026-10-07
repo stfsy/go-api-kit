@@ -1,8 +1,6 @@
 module github.com/stfsy/go-api-kit
 
-go 1.25.0
-
-toolchain go1.25.1
+go 1.26.0
 
 require (
 	github.com/stfsy/go-cors v1.1.0
@@ -16,12 +14,12 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/leodido/go-urn v1.5.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/crypto v0.55.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/text v0.41.0 // indirect
+	golang.org/x/crypto v0.57.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
 )
 
 require (
-	github.com/go-playground/validator/v10 v10.30.4
+	github.com/go-playground/validator/v10 v10.30.5
 	github.com/kelseyhightower/envconfig v1.4.0
 )
