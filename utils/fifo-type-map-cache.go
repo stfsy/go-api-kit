@@ -3,26 +3,36 @@ package utils
 import (
 	"reflect"
 	"sync"
+	"sync/atomic"
 )
 
 type LimitedCache struct {
-	m      map[reflect.Type]interface{}
+	m      atomic.Pointer[map[reflect.Type]interface{}]
 	keys   []reflect.Type // FIFO order
 	maxLen int
 	mu     sync.Mutex
 }
 
 func NewLimitedCache(maxLen int) *LimitedCache {
-	return &LimitedCache{
-		m:      make(map[reflect.Type]interface{}),
+	c := &LimitedCache{
 		maxLen: maxLen,
 	}
+	empty := make(map[reflect.Type]interface{})
+	c.m.Store(&empty)
+	return c
 }
 
 func (c *LimitedCache) Store(t reflect.Type, v interface{}) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if _, exists := c.m[t]; exists {
+
+	oldM := *c.m.Load()
+	newM := make(map[reflect.Type]interface{}, len(oldM)+1)
+	for k, val := range oldM {
+		newM[k] = val
+	}
+
+	if _, exists := newM[t]; exists {
 		// Remove t from keys
 		for i, k := range c.keys {
 			if k == t {
@@ -30,23 +40,29 @@ func (c *LimitedCache) Store(t reflect.Type, v interface{}) {
 				break
 			}
 		}
-		c.m[t] = v
+		newM[t] = v
 		// Move t to end
 		c.keys = append(c.keys, t)
+		c.m.Store(&newM)
 		return
 	}
-	if len(c.keys) >= c.maxLen {
+
+	if len(c.keys) >= c.maxLen && c.maxLen > 0 {
 		oldest := c.keys[0]
 		c.keys = c.keys[1:]
-		delete(c.m, oldest)
+		delete(newM, oldest)
 	}
+
 	c.keys = append(c.keys, t)
-	c.m[t] = v
+	newM[t] = v
+	c.m.Store(&newM)
 }
 
 func (c *LimitedCache) Load(t reflect.Type) (interface{}, bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	v, ok := c.m[t]
+	mp := c.m.Load()
+	if mp == nil {
+		return nil, false
+	}
+	v, ok := (*mp)[t]
 	return v, ok
 }
