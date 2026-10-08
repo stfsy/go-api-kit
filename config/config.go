@@ -1,6 +1,8 @@
 package config
 
 import (
+	"sync"
+
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -29,7 +31,10 @@ type Configuration struct {
 	ContainerConfig
 }
 
-var c *Configuration
+var (
+	c    *Configuration
+	once sync.Once
+)
 
 // Load loads configuration from environment variables.
 // Returns an error if loading fails.
@@ -63,18 +68,21 @@ func Load() error {
 // Get returns the loaded configuration, loading it if necessary.
 // Panics if loading fails.
 func Get() Configuration {
-	if c == nil {
-		err := Load()
-		if err != nil {
-			panic(err)
+	once.Do(func() {
+		if c == nil {
+			err := Load()
+			if err != nil {
+				panic(err)
+			}
 		}
-	}
+	})
 	return *c
 }
 
 // reset clears the loaded configuration (for testing).
 func reset() {
 	c = nil
+	once = sync.Once{}
 }
 
 // IsProduction returns true if the environment is production.
