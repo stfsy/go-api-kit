@@ -30,11 +30,14 @@ func TestGetOrBuildFieldMap_Cache(t *testing.T) {
 	if m1["Inner1.FieldA"] != "inner1.field_a" {
 		t.Errorf("expected Inner1.FieldA -> inner1.field_a, got %s", m1["Inner1.FieldA"])
 	}
-	// Second call should hit cache (simulate by changing map and checking it persists)
+	// Second call should hit cache; modifying m1 must not mutate the cache
 	m1["test"] = "value"
 	m2 := GetOrBuildFieldMap(typ, "", "")
-	if m2["test"] != "value" {
-		t.Errorf("expected cache to persist custom key, got %s", m2["test"])
+	if _, exists := m2["test"]; exists {
+		t.Errorf("expected cache to be read-only and isolated from mutations in caller")
+	}
+	if m2["Inner1.FieldA"] != "inner1.field_a" {
+		t.Errorf("expected Inner1.FieldA -> inner1.field_a, got %s", m2["Inner1.FieldA"])
 	}
 }
 
@@ -108,4 +111,16 @@ func TestGetOrBuildFieldMap_UnusualTags(t *testing.T) {
 	assert.Equal(t, "omit", m["Omit"])
 	assert.Equal(t, "emptytag", m["EmptyTag"])
 	assert.Equal(t, "notag", m["NoTag"])
+}
+
+type RecursiveNode struct {
+	Name     string         `json:"name"`
+	Children *RecursiveNode `json:"children"`
+}
+
+func TestBuildJSONFieldMap_RecursiveStruct(t *testing.T) {
+	typ := reflect.TypeOf(RecursiveNode{})
+	// Must not panic or trigger stack overflow
+	m := GetOrBuildFieldMap(typ, "", "")
+	assert.Equal(t, "name", m["Name"])
 }

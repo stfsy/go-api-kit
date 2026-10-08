@@ -25,19 +25,39 @@ import (
 // - Realistically, expect total usage to be under 1 MB.
 var structFieldMapCache = utils.NewLimitedCache(500)
 
-// GetOrBuildFieldMap returns a cached field map or builds and caches it if not present
-func GetOrBuildFieldMap(t reflect.Type, parentKey, parentTag string) map[string]string {
-	if v, ok := structFieldMapCache.Load(t); ok {
-		return v.(map[string]string)
+const maxRecursionDepth = 10
+
+// cloneFieldMap returns a shallow copy of the map to ensure callers cannot mutate the cached entry.
+func cloneFieldMap(m map[string]string) map[string]string {
+	cp := make(map[string]string, len(m))
+	for k, v := range m {
+		cp[k] = v
 	}
-	m := buildJSONFieldMap(t, parentKey, parentTag)
-	structFieldMapCache.Store(t, m)
-	return m
+	return cp
 }
 
-// buildJSONFieldMap recursively builds a map from struct namespace to json tag path
-func buildJSONFieldMap(t reflect.Type, parentKey, parentTag string) map[string]string {
+// GetOrBuildFieldMap returns a cached field map or builds and caches it if not present.
+// It returns a defensive copy to treat the internal cache as read-only.
+func GetOrBuildFieldMap(t reflect.Type, parentKey, parentTag string) map[string]string {
+	if v, ok := structFieldMapCache.Load(t); ok {
+		return cloneFieldMap(v.(map[string]string))
+	}
+	m := buildJSONFieldMap(t, parentKey, parentTag, 0)
+	structFieldMapCache.Store(t, m)
+	return cloneFieldMap(m)
+}
+
+// buildJSONFieldMap recursively builds a map from struct namespace to json tag path,
+// enforcing a maximum recursion depth to guard against cyclic/self-referential structures.
+func buildJSONFieldMap(t reflect.Type, parentKey, parentTag string, depth ...int) map[string]string {
+	currentDepth := 0
+	if len(depth) > 0 {
+		currentDepth = depth[0]
+	}
 	m := make(map[string]string)
+	if currentDepth > maxRecursionDepth {
+		return m
+	}
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		jsonTag := strings.Split(f.Tag.Get("json"), ",")[0]
@@ -56,7 +76,7 @@ func buildJSONFieldMap(t reflect.Type, parentKey, parentTag string) map[string]s
 			ft = ft.Elem()
 		}
 		if ft.Kind() == reflect.Struct && !f.Anonymous && ft.Name() != "Time" {
-			for k, v := range buildJSONFieldMap(ft, key, tagPath) {
+			for k, v := range buildJSONFieldMap(ft, key, tagPath, currentDepth+1) {
 				m[k] = v
 			}
 		}
