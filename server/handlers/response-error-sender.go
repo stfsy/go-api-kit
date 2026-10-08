@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 type HttpError struct {
@@ -19,15 +20,75 @@ type ErrorDetail struct {
 	Code    string `json:"code,omitempty"`
 }
 
-// sendError streams httpError as JSON directly to rw. HttpError's fields are all
-// plain strings/ints/maps, so encoding cannot fail once the status has been written.
+type staticErrorResponse struct {
+	title         string
+	payload       []byte
+	contentLength string
+	status        int
+}
+
+func newStaticError(status int, title string) staticErrorResponse {
+	b, _ := json.Marshal(HttpError{Title: title, Status: status})
+	b = append(b, '\n')
+	return staticErrorResponse{
+		title:         title,
+		payload:       b,
+		contentLength: strconv.Itoa(len(b)),
+		status:        status,
+	}
+}
+
+var staticErrors = map[int]staticErrorResponse{
+	http.StatusBadRequest:           newStaticError(http.StatusBadRequest, "Bad Request"),
+	http.StatusUnauthorized:         newStaticError(http.StatusUnauthorized, "Unauthorized"),
+	http.StatusForbidden:            newStaticError(http.StatusForbidden, "Forbidden"),
+	http.StatusNotFound:             newStaticError(http.StatusNotFound, "Not Found"),
+	http.StatusMethodNotAllowed:     newStaticError(http.StatusMethodNotAllowed, "Method Not Allowed"),
+	http.StatusNotAcceptable:        newStaticError(http.StatusNotAcceptable, "Not Acceptable"),
+	http.StatusRequestTimeout:       newStaticError(http.StatusRequestTimeout, "Request Timeout"),
+	http.StatusConflict:             newStaticError(http.StatusConflict, "Conflict"),
+	http.StatusGone:                 newStaticError(http.StatusGone, "Gone"),
+	http.StatusLengthRequired:       newStaticError(http.StatusLengthRequired, "Length Required"),
+	http.StatusPreconditionFailed:   newStaticError(http.StatusPreconditionFailed, "Precondition Failed"),
+	413:                             newStaticError(413, "Payload Too Large"),
+	414:                             newStaticError(414, "URI Too Long"),
+	http.StatusUnsupportedMediaType: newStaticError(http.StatusUnsupportedMediaType, "Unsupported Media Type"),
+	416:                             newStaticError(416, "Range Not Satisfiable"),
+	http.StatusExpectationFailed:    newStaticError(http.StatusExpectationFailed, "Expectation Failed"),
+	http.StatusUnprocessableEntity:  newStaticError(http.StatusUnprocessableEntity, "Unprocessable Entity"),
+	http.StatusTooManyRequests:      newStaticError(http.StatusTooManyRequests, "Too Many Requests"),
+	http.StatusInternalServerError:  newStaticError(http.StatusInternalServerError, "Internal Server Error"),
+	http.StatusNotImplemented:        newStaticError(http.StatusNotImplemented, "Not Implemented"),
+	http.StatusBadGateway:           newStaticError(http.StatusBadGateway, "Bad Gateway"),
+	http.StatusServiceUnavailable:   newStaticError(http.StatusServiceUnavailable, "Service Unavailable"),
+	http.StatusGatewayTimeout:       newStaticError(http.StatusGatewayTimeout, "Gateway Timeout"),
+	http.StatusHTTPVersionNotSupported: newStaticError(http.StatusHTTPVersionNotSupported, "HTTP Version Not Supported"),
+}
+
+// sendError streams httpError as JSON directly to rw. If details are nil and the error
+// is static, it serves the pre-marshaled payload with a precomputed Content-Length header.
 func sendError(rw http.ResponseWriter, httpError HttpError) {
 	rw.Header().Set(HeaderContentType, ContentTypeProblemJson)
-	rw.WriteHeader(httpError.Status)
-	err := json.NewEncoder(rw).Encode(httpError)
+
+	if httpError.Details == nil {
+		if staticResp, ok := staticErrors[httpError.Status]; ok && staticResp.title == httpError.Title {
+			rw.Header().Set("Content-Length", staticResp.contentLength)
+			rw.WriteHeader(httpError.Status)
+			_, _ = rw.Write(staticResp.payload)
+			return
+		}
+	}
+
+	b, err := json.Marshal(httpError)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Unable to encode error response as JSON %s", err.Error()))
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
 	}
+	b = append(b, '\n')
+	rw.Header().Set("Content-Length", strconv.Itoa(len(b)))
+	rw.WriteHeader(httpError.Status)
+	_, _ = rw.Write(b)
 }
 
 // 400 Bad Request

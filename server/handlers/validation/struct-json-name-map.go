@@ -36,9 +36,23 @@ func cloneFieldMap(m map[string]string) map[string]string {
 	return cp
 }
 
+// getFieldMapReadOnly returns the cached field map directly without defensive cloning.
+// Callers must treat the returned map as read-only.
+func getFieldMapReadOnly(t reflect.Type) map[string]string {
+	if v, ok := structFieldMapCache.Load(t); ok {
+		return v.(map[string]string)
+	}
+	m := buildJSONFieldMap(t, "", "", 0)
+	structFieldMapCache.Store(t, m)
+	return m
+}
+
 // GetOrBuildFieldMap returns a cached field map or builds and caches it if not present.
 // It returns a defensive copy to treat the internal cache as read-only.
 func GetOrBuildFieldMap(t reflect.Type, parentKey, parentTag string) map[string]string {
+	if parentKey == "" && parentTag == "" {
+		return cloneFieldMap(getFieldMapReadOnly(t))
+	}
 	if v, ok := structFieldMapCache.Load(t); ok {
 		return cloneFieldMap(v.(map[string]string))
 	}

@@ -18,31 +18,37 @@ type FieldErrorDetail struct {
 
 // ValidateStruct validates a struct and returns a map of field errors
 func ValidateStruct(s interface{}) map[string]FieldErrorDetail {
-	errors := make(map[string]FieldErrorDetail)
+	err := validate.Struct(s)
+	if err == nil {
+		return nil
+	}
+
+	vErrors, ok := err.(validator.ValidationErrors)
+	if !ok {
+		return nil
+	}
+
 	t := reflect.TypeOf(s)
 	if t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 
-	fieldMap := GetOrBuildFieldMap(t, "", "")
+	fieldMap := getFieldMapReadOnly(t)
+	errors := make(map[string]FieldErrorDetail, len(vErrors))
+	rootPrefix := t.Name() + "."
 
-	err := validate.Struct(s)
-	if err != nil {
-		for _, ferr := range err.(validator.ValidationErrors) {
-			// Always use StructNamespace for lookup, which is dot-separated path
-			ns := ferr.StructNamespace()              // e.g. Address.City
-			ns = strings.TrimPrefix(ns, t.Name()+".") // Remove root struct name
-			key := fieldMap[ns]
-			// If not found, fallback to just the field name (for root fields)
-			if key == "" {
-				key = strings.ToLower(ferr.Field())
-			}
-			// Normalize to dot notation (e.g. address.city)
-			key = strings.ReplaceAll(key, ".", ".")
-			errors[key] = FieldErrorDetail{
-				Validator: ferr.Tag(),
-				Message:   getErrorMessage(ferr),
-			}
+	for _, ferr := range vErrors {
+		// Always use StructNamespace for lookup, which is dot-separated path
+		ns := ferr.StructNamespace()              // e.g. Address.City
+		ns = strings.TrimPrefix(ns, rootPrefix)   // Remove root struct name
+		key := fieldMap[ns]
+		// If not found, fallback to just the field name (for root fields)
+		if key == "" {
+			key = strings.ToLower(ferr.Field())
+		}
+		errors[key] = FieldErrorDetail{
+			Validator: ferr.Tag(),
+			Message:   getErrorMessage(ferr),
 		}
 	}
 
