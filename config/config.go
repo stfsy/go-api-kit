@@ -67,7 +67,7 @@ func Load() error {
 
 // Get returns the loaded configuration, loading it if necessary.
 // Panics if loading fails.
-func Get() Configuration {
+func Get() *Configuration {
 	once.Do(func() {
 		if c == nil {
 			err := Load()
@@ -76,7 +76,7 @@ func Get() Configuration {
 			}
 		}
 	})
-	return *c
+	return c
 }
 
 // reset clears the loaded configuration (for testing).
