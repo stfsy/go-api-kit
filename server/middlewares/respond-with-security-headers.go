@@ -9,7 +9,8 @@ import (
 type SecurityHeadersMiddleware struct{}
 
 var securityHeadersMap = func() map[string]string {
-	m := make(map[string]string, 11)
+	m := make(map[string]string, 12)
+	m[security.NewContentSecurityPolicy().Name] = security.NewContentSecurityPolicy().Value
 	m[security.NewCrossOriginEmbedderPolicy().Name] = security.NewCrossOriginEmbedderPolicy().Value
 	m[security.NewCrossOriginOpenerPolicy().Name] = security.NewCrossOriginOpenerPolicy().Value
 	m[security.NewCrossOriginResourcePolicy().Name] = security.NewCrossOriginResourcePolicy().Value

@@ -9,10 +9,11 @@ func TestHeaderProvidersReturnExpectedPairs(t *testing.T) {
 		wantName  string
 		wantValue string
 	}{
+		{"csp", NewContentSecurityPolicy(), "Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'"},
 		{"x-content-type", NewXContentTypeOptions(), "X-Content-Type-Options", "nosniff"},
 		{"referrer", NewReferrerPolicy(), "Referrer-Policy", "same-origin"},
 		{"cors-resource", NewCrossOriginResourcePolicy(), "Cross-Origin-Resource-Policy", "same-site"},
-		{"x-xss", NewXssProtection(), "X-XSS-Protection", "1; mode=block"},
+		{"x-xss", NewXssProtection(), "X-XSS-Protection", "0"},
 		{"x-permitted", NewXPermittedCrossDomainOptions(), "X-Permitted-Cross-Domain-Policies", "none"},
 		{"x-frame", NewXFrameOptions(), "X-Frame-Options", "DENY"},
 		{"x-download", NewXDownloadOptions(), "X-Download-Options", "noopen"},

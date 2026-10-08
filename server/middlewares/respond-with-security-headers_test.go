@@ -17,6 +17,10 @@ func TestSecurityHeaders(t *testing.T) {
 		value string
 	}{
 		{
+			"Content-Security-Policy",
+			"default-src 'none'; frame-ancestors 'none'",
+		},
+		{
 			"Cross-Origin-Embedder-Policy",
 			"require-corp",
 		},
@@ -58,7 +62,7 @@ func TestSecurityHeaders(t *testing.T) {
 		},
 		{
 			"X-XSS-Protection",
-			"1; mode=block",
+			"0",
 		},
 	}
 
