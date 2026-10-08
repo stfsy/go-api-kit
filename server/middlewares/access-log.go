@@ -22,6 +22,12 @@ func NewAccessLog() *AccessLogMiddleware {
 
 func (m *AccessLogMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	start := time.Now()
+	userAgent := ""
+	if uas := r.Header["User-Agent"]; len(uas) > 0 {
+		userAgent = uas[0]
+	} else {
+		userAgent = r.UserAgent()
+	}
 
 	next(rw, r)
 
@@ -37,6 +43,6 @@ func (m *AccessLogMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request,
 		"proto", r.Proto,
 		"status", status,
 		"duration", time.Since(start),
-		"user_agent", r.UserAgent(),
+		"user_agent", userAgent,
 	)
 }

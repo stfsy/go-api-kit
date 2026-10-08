@@ -8,21 +8,34 @@ import (
 
 type SecurityHeadersMiddleware struct{}
 
-var securityHeadersMap = func() map[string]string {
-	m := make(map[string]string, 12)
-	m[security.NewContentSecurityPolicy().Name] = security.NewContentSecurityPolicy().Value
-	m[security.NewCrossOriginEmbedderPolicy().Name] = security.NewCrossOriginEmbedderPolicy().Value
-	m[security.NewCrossOriginOpenerPolicy().Name] = security.NewCrossOriginOpenerPolicy().Value
-	m[security.NewCrossOriginResourcePolicy().Name] = security.NewCrossOriginResourcePolicy().Value
-	m[security.NewOriginAgentClusterPolicy().Name] = security.NewOriginAgentClusterPolicy().Value
-	m[security.NewReferrerPolicy().Name] = security.NewReferrerPolicy().Value
-	m[security.NewStrictTransportSecurityPolicy().Name] = security.NewStrictTransportSecurityPolicy().Value
-	m[security.NewXContentTypeOptions().Name] = security.NewXContentTypeOptions().Value
-	m[security.NewXDownloadOptions().Name] = security.NewXDownloadOptions().Value
-	m[security.NewXFrameOptions().Name] = security.NewXFrameOptions().Value
-	m[security.NewXPermittedCrossDomainOptions().Name] = security.NewXPermittedCrossDomainOptions().Value
-	m[security.NewXssProtection().Name] = security.NewXssProtection().Value
-	return m
+type securityHeaderEntry struct {
+	canonicalKey string
+	values       []string
+}
+
+var precomputedSecurityHeaders = func() []securityHeaderEntry {
+	providers := []security.HeaderKeyValueProvider{
+		security.NewContentSecurityPolicy(),
+		security.NewCrossOriginEmbedderPolicy(),
+		security.NewCrossOriginOpenerPolicy(),
+		security.NewCrossOriginResourcePolicy(),
+		security.NewOriginAgentClusterPolicy(),
+		security.NewReferrerPolicy(),
+		security.NewStrictTransportSecurityPolicy(),
+		security.NewXContentTypeOptions(),
+		security.NewXDownloadOptions(),
+		security.NewXFrameOptions(),
+		security.NewXPermittedCrossDomainOptions(),
+		security.NewXssProtection(),
+	}
+	entries := make([]securityHeaderEntry, len(providers))
+	for i, p := range providers {
+		entries[i] = securityHeaderEntry{
+			canonicalKey: http.CanonicalHeaderKey(p.Name),
+			values:       []string{p.Value},
+		}
+	}
+	return entries
 }()
 
 func NewRespondWithSecurityHeadersMiddleware() *SecurityHeadersMiddleware {
@@ -31,9 +44,8 @@ func NewRespondWithSecurityHeadersMiddleware() *SecurityHeadersMiddleware {
 
 func (m *SecurityHeadersMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	headers := rw.Header()
-	for k, v := range securityHeadersMap {
-		// Use the canonical header key directly to avoid the extra validation path in Header.Set.
-		headers[http.CanonicalHeaderKey(k)] = []string{v}
+	for i := range precomputedSecurityHeaders {
+		headers[precomputedSecurityHeaders[i].canonicalKey] = precomputedSecurityHeaders[i].values
 	}
 	next(rw, r)
 }

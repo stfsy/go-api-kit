@@ -7,12 +7,17 @@ import (
 	"net/http"
 )
 
-var noCacheHeaders = map[string]string{
-	"Cache-Control":     "no-store, no-cache, must-revalidate, proxy-revalidate",
-	"Expires":           "0",
-	"Pragma":            "no-cache",
-	"Surrogate-Control": "no-store",
-	"X-Accel-Expires":   "0",
+type noCacheHeaderEntry struct {
+	canonicalKey string
+	values       []string
+}
+
+var precomputedNoCacheHeaders = []noCacheHeaderEntry{
+	{canonicalKey: "Cache-Control", values: []string{"no-store, no-cache, must-revalidate, proxy-revalidate"}},
+	{canonicalKey: "Expires", values: []string{"0"}},
+	{canonicalKey: "Pragma", values: []string{"no-cache"}},
+	{canonicalKey: "Surrogate-Control", values: []string{"no-store"}},
+	{canonicalKey: "X-Accel-Expires", values: []string{"0"}},
 }
 
 type NoCacheHeadersMiddleware struct{}
@@ -32,11 +37,10 @@ func NewNoCacheHeadersMiddleware() *NoCacheHeadersMiddleware {
 //	Pragma: no-cache (for HTTP/1.0 proxies/clients)
 func (m *NoCacheHeadersMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 
-	// Set our NoCache headers. Keys are precomputed in canonical form, so write
-	// directly to skip Set's canonicalization.
+	// Set our NoCache headers using precomputed canonical keys and slice values to avoid allocations.
 	headers := rw.Header()
-	for k, v := range noCacheHeaders {
-		headers[k] = []string{v}
+	for i := range precomputedNoCacheHeaders {
+		headers[precomputedNoCacheHeaders[i].canonicalKey] = precomputedNoCacheHeaders[i].values
 	}
 
 	next.ServeHTTP(rw, r)

@@ -40,28 +40,19 @@ func (m *RequireContentTypeMiddleware) ServeHTTP(rw http.ResponseWriter, r *http
 	}
 
 	// For write requests (POST/PUT/PATCH and DELETE with body), require a valid Content-Type.
-	// Parse the Content-Type header using mime.ParseMediaType to canonicalize comparisons.
 	ctHeader := strings.TrimSpace(r.Header.Get("Content-Type"))
 	if ctHeader == "" {
 		handlers.SendUnsupportedMediaType(rw, nil)
 		return
 	}
 
-	// Fast path: skip the allocating mime.ParseMediaType call when there are no
-	// parameters to strip and the header already matches the allowed media type.
-	if !strings.Contains(ctHeader, ";") && strings.ToLower(ctHeader) == m.AllowedContentType {
-		next.ServeHTTP(rw, r)
-		return
+	// Zero-copy parameter stripping and case-insensitive media type comparison
+	mediaType := ctHeader
+	if idx := strings.IndexByte(ctHeader, ';'); idx != -1 {
+		mediaType = strings.TrimSpace(ctHeader[:idx])
 	}
 
-	mediaType, _, err := mime.ParseMediaType(ctHeader)
-	if err != nil {
-		// If parsing fails, conservatively reject the request.
-		handlers.SendUnsupportedMediaType(rw, nil)
-		return
-	}
-
-	if strings.ToLower(mediaType) == m.AllowedContentType {
+	if strings.EqualFold(mediaType, m.AllowedContentType) {
 		next.ServeHTTP(rw, r)
 		return
 	}
