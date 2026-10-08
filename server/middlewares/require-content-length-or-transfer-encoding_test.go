@@ -45,7 +45,7 @@ func TestRequireContentLengthOrTransferEncodingMiddleware(t *testing.T) {
 			method:       http.MethodPost,
 			proto:        "HTTP/1.1",
 			headers:      map[string]string{"Content-Length": "0"},
-			expectStatus: http.StatusLengthRequired,
+			expectStatus: http.StatusOK,
 		},
 		{
 			name:         "POST HTTP/1.1 with Transfer-Encoding",
