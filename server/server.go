@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"runtime"
 	"strings"
 	"time"
 
@@ -124,12 +123,7 @@ func createServer(port string, h http.Handler) *http.Server {
 		port = "8080"
 	}
 
-	var addr string
-	if runtime.GOOS == "windows" {
-		addr = fmt.Sprintf("localhost:%s", port)
-	} else {
-		addr = fmt.Sprintf(":%s", port)
-	}
+	addr := ":" + port
 
 	return &http.Server{
 		Addr:         addr,
@@ -143,7 +137,6 @@ func createServer(port string, h http.Handler) *http.Server {
 func createMiddlewareHandler(_ctx context.Context, sc *ServerConfig) *negroni.Negroni {
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
-	n.Use(middlewares.NewAccessLog())
 	n.Use(middlewares.NewRespondWithSecurityHeadersMiddleware())
 	n.Use(middlewares.NewNoCacheHeadersMiddleware())
 	n.Use(middlewares.NewRequireHTTP11Middleware())
