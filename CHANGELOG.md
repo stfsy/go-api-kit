@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.14.0](https://github.com/stfsy/go-api-kit/compare/v1.13.1...v1.14.0) (2026-10-08)
+
+
+### Features
+
+* implement performance improvements ([e0c8688](https://github.com/stfsy/go-api-kit/commit/e0c8688df0af3ef01e85dab1ceabfa748b4a5fdc))
+* **server:** populate CrossOriginProtection from CORS origins and add context timeout handler ([7a5a8a2](https://github.com/stfsy/go-api-kit/commit/7a5a8a23fa39cd2b0864713d92e7e7661b8af2c0))
+
+
+### Bug Fixes
+
+* **config:** ensure thread-safe lazy loading using sync.Once ([65244be](https://github.com/stfsy/go-api-kit/commit/65244be8650fb31f7a9a788f56dba8e8b2cee34f))
+* **handlers:** marshal in memory before writing and allow empty payloads in validating handler ([9829182](https://github.com/stfsy/go-api-kit/commit/9829182bf801e29627445b2a61ab40dc68ff9f99))
+* **middlewares:** allow Content-Length 0 for write requests per RFC 9110 ([8ddcdc7](https://github.com/stfsy/go-api-kit/commit/8ddcdc76c3a9a1f5c6dba234e0eae897473be612))
+* **security:** set X-XSS-Protection to 0 and add Content-Security-Policy header ([179b6b6](https://github.com/stfsy/go-api-kit/commit/179b6b6e553fcf27183d9cb535115238a6153ccc))
+* **validation:** limit struct recursion depth and return defensive copies from cache ([0327225](https://github.com/stfsy/go-api-kit/commit/0327225e243ea649280e374f9bdca35b96ec149d))
+
+
+### Performance Improvements
+
+* **config:** return configuration pointer to avoid pass-by-value struct copies ([5da4cfb](https://github.com/stfsy/go-api-kit/commit/5da4cfb5686319e2d2edd4d719d14b1c980a46a9))
+* **handlers:** optimize validation allocations and pre-render static error payloads ([c15b0a8](https://github.com/stfsy/go-api-kit/commit/c15b0a8719d3e31d1647d06f18033a0ea259f92d))
+* **middlewares:** precompute header slices and optimize content-type checking ([74c7ecc](https://github.com/stfsy/go-api-kit/commit/74c7ecc6fc4aceb12584ed88f89b74f2d5c5ffea))
+* **server:** standardize address bindings and remove access log from default stack ([df64c7b](https://github.com/stfsy/go-api-kit/commit/df64c7bfe7bc8b0298601fc75ff3269284624749))
+* **utils:** implement lock-free reads in LimitedCache using atomic.Pointer ([8f763d6](https://github.com/stfsy/go-api-kit/commit/8f763d6626cb8d44fa23e96e6646352661abfddd))
+
 ## [1.13.1](https://github.com/stfsy/go-api-kit/compare/v1.13.0...v1.13.1) (2026-07-28)
 
 
