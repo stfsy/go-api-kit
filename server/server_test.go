@@ -77,12 +77,37 @@ func TestPOST_WithoutLengthOrTransferEncoding_Returns411(t *testing.T) {
 	stop := startTestServer(t)
 	defer stop()
 
-	req, _ := http.NewRequest("POST", "http://localhost:8080/test", nil)
+	conn, err := net.Dial("tcp", "localhost:8080")
+	assert := a.New(t)
+	assert.NoError(err)
+	defer func() { _ = conn.Close() }()
+
+	req := "POST /test HTTP/1.1\r\nHost: localhost:8080\r\n\r\n"
+	_, err = conn.Write([]byte(req))
+	assert.NoError(err)
+
+	r := bufio.NewReader(conn)
+	statusLine, err := r.ReadString('\n')
+	assert.NoError(err)
+
+	fields := strings.Split(statusLine, " ")
+	if len(fields) < 2 {
+		t.Fatalf("unexpected status line: %q", statusLine)
+	}
+	assert.Equal("411", fields[1])
+}
+
+func TestPOST_WithZeroContentLength_Allowed(t *testing.T) {
+	stop := startTestServer(t)
+	defer stop()
+
+	req, _ := http.NewRequest("POST", "http://localhost:8080/test", bytes.NewReader([]byte{}))
+	req.Header.Set("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
-	a := a.New(t)
-	a.NoError(err)
+	assert := a.New(t)
+	assert.NoError(err)
 	defer func() { _ = resp.Body.Close() }()
-	a.Equal(http.StatusLengthRequired, resp.StatusCode)
+	assert.Equal(http.StatusOK, resp.StatusCode)
 }
 
 func TestPOST_WithBodyButNoContentType_Returns415(t *testing.T) {

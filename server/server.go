@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/stfsy/go-api-kit/config"
@@ -64,14 +65,20 @@ func (s *Server) Start() error {
 	if s.serverConfig.MiddlewareCallback != nil {
 		n = s.serverConfig.MiddlewareCallback(n)
 	}
-	n.UseHandler(mux)
+
+	configuration := config.Get()
+	var muxHandler http.Handler = mux
+	if configuration.WriteTimeout > 0 {
+		timeout := time.Duration(configuration.WriteTimeout) * time.Second
+		muxHandler = http.TimeoutHandler(mux, timeout, `{"status":503,"title":"Service Unavailable","details":{"timeout":"request timed out"}}`)
+	}
+	n.UseHandler(muxHandler)
 
 	csrfProtection := s.serverConfig.CrossOriginProtection
 	if csrfProtection == nil {
-		csrfProtection = createCrossOritinProtection()
+		csrfProtection = createCrossOriginProtection(s.serverConfig.CorsConfig)
 	}
 
-	configuration := config.Get()
 	port := configuration.Port
 	if s.serverConfig.PortOverride != "" {
 		port = s.serverConfig.PortOverride
@@ -98,8 +105,16 @@ func (s *Server) Start() error {
 	return nil
 }
 
-func createCrossOritinProtection() *http.CrossOriginProtection {
-	return &http.CrossOriginProtection{}
+func createCrossOriginProtection(corsConfig *cors.Options) *http.CrossOriginProtection {
+	p := http.NewCrossOriginProtection()
+	if corsConfig != nil {
+		for _, origin := range corsConfig.AllowedOrigins {
+			if origin != "*" && !strings.Contains(origin, "*") {
+				_ = p.AddTrustedOrigin(origin)
+			}
+		}
+	}
+	return p
 }
 
 func createServer(port string, h http.Handler) *http.Server {
