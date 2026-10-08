@@ -160,3 +160,53 @@ func TestValidatingHandler_UnknownFields(t *testing.T) {
 		t.Errorf("expected status %d, got %d", http.StatusBadRequest, w.Result().StatusCode)
 	}
 }
+
+func TestValidatingHandler_PostZeroContentLength(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader([]byte{}))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Length", "0")
+	w := httptest.NewRecorder()
+
+	handlerCalled := false
+	handler := func(w http.ResponseWriter, r *http.Request, p *testPayload) {
+		handlerCalled = true
+		if p != nil {
+			t.Errorf("expected nil payload for zero content-length POST, got %v", p)
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ValidatingHandler[testPayload](handler)(w, req)
+
+	if !handlerCalled {
+		t.Error("expected handler to be called for POST with zero content-length")
+	}
+	if w.Result().StatusCode != http.StatusOK {
+		t.Errorf("expected status 200, got %d", w.Result().StatusCode)
+	}
+}
+
+func TestValidatingHandler_PostEmptyBody(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/", http.NoBody)
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	handlerCalled := false
+	handler := func(w http.ResponseWriter, r *http.Request, p *testPayload) {
+		handlerCalled = true
+		if p != nil {
+			t.Errorf("expected nil payload for empty body, got %v", p)
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+
+	ValidatingHandler[testPayload](handler)(w, req)
+
+	if !handlerCalled {
+		t.Error("expected handler to be called for POST with empty body")
+	}
+	if w.Result().StatusCode != http.StatusOK {
+		t.Errorf("expected status 200, got %d", w.Result().StatusCode)
+	}
+}
+

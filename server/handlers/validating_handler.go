@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 	"strings"
 
@@ -14,7 +16,9 @@ func ValidatingHandler[T any](handler func(http.ResponseWriter, *http.Request, *
 		hasBody := false
 		switch method {
 		case http.MethodPost, http.MethodPut, http.MethodPatch:
-			hasBody = true
+			if r.ContentLength != 0 && r.Body != nil && r.Body != http.NoBody {
+				hasBody = true
+			}
 		case http.MethodDelete:
 			if r.ContentLength > 0 {
 				hasBody = true
@@ -32,6 +36,11 @@ func ValidatingHandler[T any](handler func(http.ResponseWriter, *http.Request, *
 			decoder.DisallowUnknownFields()
 
 			if err := decoder.Decode(&body); err != nil {
+				if errors.Is(err, io.EOF) {
+					// Empty body passes through as nil payload
+					handler(w, r, nil)
+					return
+				}
 				SendBadRequest(w, nil)
 				return
 			}
@@ -50,7 +59,6 @@ func ValidatingHandler[T any](handler func(http.ResponseWriter, *http.Request, *
 
 			handler(w, r, &body)
 			return
-			// Optionally add validation logic here
 		}
 
 		handler(w, r, nil)
