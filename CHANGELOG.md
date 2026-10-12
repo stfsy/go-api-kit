@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0](https://github.com/stfsy/go-api-kit/compare/v1.14.0...v1.15.0) (2026-10-12)
+
+
+### Features
+
+* allow configuring the default request media type ([4187e9c](https://github.com/stfsy/go-api-kit/commit/4187e9cbd455bbf6ff7b05153a70dfbfa54a4daa))
+
 ## [1.14.0](https://github.com/stfsy/go-api-kit/compare/v1.13.1...v1.14.0) (2026-10-08)
 
 
