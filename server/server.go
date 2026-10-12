@@ -21,7 +21,9 @@ var logger = utils.NewLogger("server")
 
 // ServerConfig configures the API server's endpoints, middleware, and startup behavior.
 type ServerConfig struct {
-	CorsConfig *cors.Options
+	// DefaultMediaType specifies the accepted media type for requests.
+	DefaultMediaType string
+	CorsConfig       *cors.Options
 	// CrossOriginProtection configures CSRF protection.
 	CrossOriginProtection *http.CrossOriginProtection
 	// MuxCallback registers endpoints and custom middlewares to the HTTP mux.
@@ -145,7 +147,11 @@ func createMiddlewareHandler(_ctx context.Context, sc *ServerConfig) *negroni.Ne
 		n.Use(cors.New(*sc.CorsConfig))
 	}
 	n.Use(middlewares.NewRequireContentLengthOrTransferEncodingMiddleware())
-	n.Use(middlewares.NewRequireContentTypeMiddleware("application/json"))
+	if sc.DefaultMediaType != "" {
+		n.Use(middlewares.NewRequireContentTypeMiddleware(sc.DefaultMediaType))
+	} else if sc.DefaultMediaType == "" {
+		n.Use(middlewares.NewRequireContentTypeMiddleware("application/json"))
+	}
 	return n
 }
 
