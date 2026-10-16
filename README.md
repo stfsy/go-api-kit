@@ -29,6 +29,7 @@ go get https://github.com/stfsy/go-api-kit
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -39,24 +40,8 @@ import (
 	"github.com/urfave/negroni/v3"
 )
 
-var s *server.Server
-
 func main() {
-	startServerNonBlocking()
-	stopServerAfterSignal()
-}
-
-func stopServerAfterSignal() {
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	<-sigChan
-
-	s.Stop()
-	fmt.Println("Graceful shutdown complete.")
-}
-
-func startServerNonBlocking() {
-	s = server.NewServer(&server.ServerConfig{
+	s := server.NewServer(&server.ServerConfig{
 		// Register endpoints and custom middlewares
 		MuxCallback: func(mux *http.ServeMux) {
 			mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
@@ -75,12 +60,27 @@ func startServerNonBlocking() {
 		// Manually set the port. If empty, uses env.PORT
 		PortOverride: "8080",
 	})
+
+	serverErr := make(chan error, 1)
 	go func() {
 		err := s.Start()
-		if err != nil {
-			panic(fmt.Errorf("unable to start server %w", err))
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			serverErr <- err
 		}
 	}()
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case err := <-serverErr:
+		fmt.Printf("Server startup error: %v\n", err)
+		os.Exit(1)
+	case sig := <-sigChan:
+		fmt.Printf("Shutdown signal received: %v\n", sig)
+		s.Stop()
+		fmt.Println("Graceful shutdown complete.")
+	}
 }
 ```
 

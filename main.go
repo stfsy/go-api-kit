@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,25 +12,9 @@ import (
 )
 
 var logger = utils.NewLogger("main")
-var s *server.Server
 
 func main() {
-	startServerNonBlocking()
-	stopServerAfterSignal()
-}
-
-func stopServerAfterSignal() {
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	<-sigChan
-
-	s.Stop()
-
-	logger.Info("Graceful shutdown complete.")
-}
-
-func startServerNonBlocking() {
-	s = server.NewServer(&server.ServerConfig{
+	s := server.NewServer(&server.ServerConfig{
 		MuxCallback: func(*http.ServeMux) {
 			// add your endpoints and middlewares here
 		},
@@ -42,10 +26,25 @@ func startServerNonBlocking() {
 		// define the port manually. If empty the value of env.PORT is used.
 		PortOverride: "8080",
 	})
+
+	serverErr := make(chan error, 1)
 	go func() {
 		err := s.Start()
-		if err != nil {
-			panic(fmt.Errorf("unable to start server %w", err))
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			serverErr <- err
 		}
 	}()
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case err := <-serverErr:
+		logger.Error("server startup error", "err", err)
+		os.Exit(1)
+	case sig := <-sigChan:
+		logger.Info("shutdown signal received", "signal", sig)
+		s.Stop()
+		logger.Info("Graceful shutdown complete.")
+	}
 }
