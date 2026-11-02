@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/stfsy/go-cors v1.1.0
 	github.com/stretchr/testify v1.12.1
-	github.com/urfave/negroni/v3 v3.1.1
+	github.com/urfave/negroni/v3 v3.1.2
 )
 
 require (
