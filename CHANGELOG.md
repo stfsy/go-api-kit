@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.15.1](https://github.com/stfsy/go-api-kit/compare/v1.15.0...v1.15.1) (2026-11-02)
+
+
+### Miscellaneous Chores
+
+* **deps:** bump github.com/urfave/negroni/v3 from 3.1.1 to 3.1.2 ([3bcf9ea](https://github.com/stfsy/go-api-kit/commit/3bcf9ea8183c4e9bcd4267cedfe5fff01fc95c68))
+* **deps:** bump github.com/urfave/negroni/v3 from 3.1.1 to 3.1.2 ([7f66fa4](https://github.com/stfsy/go-api-kit/commit/7f66fa4d96f5b3994a4f0a79dc57f1f69dea0805))
+* **deps:** update dependencies ([7cdf0ab](https://github.com/stfsy/go-api-kit/commit/7cdf0ab7fd3480f7d99f4b28d6f9fe57b257f346))
+* **docs:** update usage example ([bb71f5f](https://github.com/stfsy/go-api-kit/commit/bb71f5f5db36b500c44e471afc1a5131aeca47c1))
+* standardize release-please and stale workflows ([32bbc90](https://github.com/stfsy/go-api-kit/commit/32bbc909108672bc7589239cdaec5fc95271588b))
+* standardize release-please and stale workflows ([8289ee8](https://github.com/stfsy/go-api-kit/commit/8289ee822d20b4c1582dd95509483722e02e1a95))
+
 ## [1.15.0](https://github.com/stfsy/go-api-kit/compare/v1.14.0...v1.15.0) (2026-10-12)
 
 
